@@ -64,6 +64,9 @@ class D3DBSPImporter(bpy.types.Operator):
 
                 curr_soup = d3dbsp.trianglesoups[i]
                 curr_soup_tricount = (int) (curr_soup.triangle_length / 3)
+
+                uv_data_list = []
+
                 for j in range (0, curr_soup_tricount):
                     curr_triangle = d3dbsp.triangles[(int) (curr_soup.triangle_offset / 3 + j)]
 
@@ -75,9 +78,23 @@ class D3DBSPImporter(bpy.types.Operator):
                     v2 = bm.verts.new((vertex2.pos_x, vertex2.pos_y, vertex2.pos_z))
                     v3 = bm.verts.new((vertex3.pos_x, vertex3.pos_y, vertex3.pos_z))
 
+                    uv_data_list.append((vertex1.uv_u, vertex1.uv_v))
+                    uv_data_list.append((vertex2.uv_u, vertex2.uv_v))
+                    uv_data_list.append((vertex3.uv_u, vertex3.uv_v))
+
+                    bm.verts.ensure_lookup_table()
+                    bm.verts.index_update()
+
                     bm.faces.new((v1, v2, v3))
-                    bm.to_mesh(mesh)
-                
+                    bm.faces.ensure_lookup_table()
+                    bm.faces.index_update()
+
+                uv_layer = bm.loops.layers.uv.new()
+                for face in bm.faces:
+                    for loop, uv_data in zip(face.loops, uv_data_list):
+                        loop[uv_layer].uv = uv_data
+
+                bm.to_mesh(mesh)
                 bm.free()
             
             return True
