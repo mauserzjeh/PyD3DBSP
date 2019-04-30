@@ -78,9 +78,13 @@ class D3DBSPImporter(bpy.types.Operator):
                     v2 = bm.verts.new((vertex2.pos_x, vertex2.pos_y, vertex2.pos_z))
                     v3 = bm.verts.new((vertex3.pos_x, vertex3.pos_y, vertex3.pos_z))
 
-                    uv_data_list.append((vertex1.uv_u, vertex1.uv_v))
-                    uv_data_list.append((vertex2.uv_u, vertex2.uv_v))
-                    uv_data_list.append((vertex3.uv_u, vertex3.uv_v))
+                    uv_face_list = []
+
+                    uv_face_list.append((vertex1.uv_u, vertex1.uv_v))
+                    uv_face_list.append((vertex2.uv_u, vertex2.uv_v))
+                    uv_face_list.append((vertex3.uv_u, vertex3.uv_v))
+
+                    uv_data_list.append(uv_face_list)
 
                     bm.verts.ensure_lookup_table()
                     bm.verts.index_update()
@@ -90,8 +94,9 @@ class D3DBSPImporter(bpy.types.Operator):
                     bm.faces.index_update()
 
                 uv_layer = bm.loops.layers.uv.new()
-                for face in bm.faces:
-                    for loop, uv_data in zip(face.loops, uv_data_list):
+
+                for face, uv_face_data in zip(bm.faces, uv_data_list):
+                    for loop, uv_data in zip(face.loops, uv_face_data):
                         loop[uv_layer].uv = uv_data
 
                 bm.to_mesh(mesh)
