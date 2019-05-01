@@ -114,7 +114,7 @@ D3DBSPVertex = namedtuple('D3DBSPVertex',
     'clr_r, clr_g, clr_b, clr_a,'
     'uv_u, uv_v,'
     'st_s, st_t,'
-    'unknwn_1, unknwn_2, unknwn_3, unknwn_4, unknwn_5, unknwn_6,')
+    'unknwn_1, unknwn_2, unknwn_3, unknwn_4, unknwn_5, unknwn_6')
     )
 fmt_D3DBSPVertex = '<3f3f4B2f2f6f' # D3DBSPVertex format
 
@@ -197,6 +197,7 @@ class D3DBSP:
         -----------
 
         """
+        file.seek(0)
         header_data = file.read(struct.calcsize(fmt_D3DBSPHeader))
         self.header = D3DBSPHeader._make(struct.unpack(fmt_D3DBSPHeader, header_data))
         # decode header magic to string

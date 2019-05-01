@@ -27,6 +27,13 @@ class D3DBSPImporter(bpy.types.Operator):
         #subtype = 'DIR_PATH'
     )
 
+    texturePath = bpy.props.StringProperty(
+        name = 'Texture Path',
+        description = 'Directory path containing the textures.',
+        default = '',
+        #subtype = 'DIR_PATH'
+    )
+
     xmodelPath = bpy.props.StringProperty(
         name = 'Models Path',
         description = 'Directory path containing map entities.',
