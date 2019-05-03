@@ -73,6 +73,7 @@ class D3DBSPImporter(bpy.types.Operator):
                 curr_soup_tricount = (int) (curr_soup.triangle_length / 3)
 
                 uv_data_list = []
+                vertexcolor_data_list = []
 
                 for j in range (0, curr_soup_tricount):
                     curr_triangle = d3dbsp.triangles[(int) (curr_soup.triangle_offset / 3 + j)]
@@ -86,12 +87,18 @@ class D3DBSPImporter(bpy.types.Operator):
                     v3 = bm.verts.new((vertex3.pos_x, vertex3.pos_y, vertex3.pos_z))
 
                     uv_face_list = []
+                    vertexcolor_face_list = []
 
                     uv_face_list.append((vertex1.uv_u, vertex1.uv_v))
                     uv_face_list.append((vertex2.uv_u, vertex2.uv_v))
                     uv_face_list.append((vertex3.uv_u, vertex3.uv_v))
 
+                    vertexcolor_face_list.append((vertex1.clr_r / 255, vertex1.clr_g / 255, vertex1.clr_b / 255))
+                    vertexcolor_face_list.append((vertex2.clr_r / 255, vertex2.clr_g / 255, vertex2.clr_b / 255))
+                    vertexcolor_face_list.append((vertex3.clr_r / 255, vertex3.clr_g / 255, vertex3.clr_b / 255))
+
                     uv_data_list.append(uv_face_list)
+                    vertexcolor_data_list.append(vertexcolor_face_list)
 
                     bm.verts.ensure_lookup_table()
                     bm.verts.index_update()
@@ -101,10 +108,12 @@ class D3DBSPImporter(bpy.types.Operator):
                     bm.faces.index_update()
 
                 uv_layer = bm.loops.layers.uv.new()
+                vertexcolor_layer = bm.loops.layers.color.new()
 
-                for face, uv_face_data in zip(bm.faces, uv_data_list):
-                    for loop, uv_data in zip(face.loops, uv_face_data):
+                for face, uv_face_data, vertexcolor_face_data in zip(bm.faces, uv_data_list, vertexcolor_data_list):
+                    for loop, uv_data, vertexcolor_data in zip(face.loops, uv_face_data, vertexcolor_face_data):
                         loop[uv_layer].uv = uv_data
+                        loop[vertexcolor_layer] = vertexcolor_data
 
                 bm.to_mesh(mesh)
                 bm.free()
