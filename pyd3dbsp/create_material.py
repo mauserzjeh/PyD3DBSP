@@ -1,6 +1,6 @@
 # material creation code goes here
 
-#import bpy
+import bpy
 
 import read_material
 import read_texture
@@ -112,5 +112,5 @@ def create_material(name, material_fpath, texture_fpath):
 
     links.new(principled_bsdf_node.outputs['BSDF'], material_output_node.inputs['Surface'])
     """
-
+# testing
 create_material('toujane_ground1', 'F:\\MOVIEMAKING\\3D STUFF\\COD\\COD2ASSETS\\materials', 'F:\\MOVIEMAKING\\3D STUFF\\COD\\COD2ASSETS\\images')
