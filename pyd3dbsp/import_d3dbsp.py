@@ -124,4 +124,7 @@ class D3DBSPImporter(bpy.types.Operator):
     
     def import_entities(self, context):
         pass
+    
+    def import_materials(self, materials):
+        pass
 
