@@ -38,9 +38,16 @@ MTLMapInfoBlock = namedtuple('MTLMapInfoBlock', 'first_ofs, second_ofs')
 fmt_MTLMapInfoBlock = '<I4xI' # MTLMapInfoBlock format
 
 """
-MTLMapTypes list that defines the types of maps that the material can refer to.
+MTLMapTypes dictionary that defines the types of maps that the material can refer to.
+Reason of using dictionary because it is easier to access the value by the key as it is
+having the same identifier.
 """
-MTLMapTypes = ['colorMap', 'specularMap', 'normalMap', 'detailMap']
+MTLMapTypes = {
+    'colorMap' : 'colorMap', 
+    'specularMap' : 'specularMap', 
+    'normalMap' : 'normalMap', 
+    'detailMap' : 'detailMap'
+    }
 
 class MTL:
     """
