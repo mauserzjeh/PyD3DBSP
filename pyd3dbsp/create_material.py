@@ -65,11 +65,11 @@ def create_material(name, material_fpath, texture_fpath):
                 links.new(texture_node.outputs['Color'], principled_bsdf_node.inputs['Specular'])
             elif(maptype == read_material.MTLMapTypes['normalMap']):
                 # create normalmap node
-                normal_node = nodes.new('ShaderNodeNormalMap')
-                normal_node.location = (-450, -500)
+                bump_node = nodes.new('ShaderNodeBump')
+                bump_node.location = (-450, -500)
 
-                links.new(texture_node.outputs['Color'], normal_node.inputs['Color'])
-                links.new(normal_node.outputs['Normal'], principled_bsdf_node.inputs['Normal'])
+                links.new(texture_node.outputs['Color'], bump_node.inputs['Height'])
+                links.new(bump_node.outputs['Normal'], principled_bsdf_node.inputs['Normal'])
             elif(maptype == read_material.MTLMapTypes['detailMap']):
                 pass
 
