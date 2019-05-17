@@ -9,6 +9,7 @@ import bpy.props
 import bmesh
 
 from . import read_d3dbsp
+from . import create_material
 
 class D3DBSPImporter(bpy.types.Operator):
     bl_idname = 'pyd3dbsp.d3dbsp_importer'
@@ -57,14 +58,23 @@ class D3DBSPImporter(bpy.types.Operator):
         # will need to clean up this mess once i got the whole stuff working
         d3dbsp = read_d3dbsp.D3DBSP()
         if(d3dbsp.load_d3dbsp(self.filepath)):
+
+            self.import_materials(d3dbsp.materials, self.materialPath, self.texturePath)
             
-            for i in range (0, len(d3dbsp.trianglesoups)):
+            for i in range (0, 10):
+            #for i in range (0, len(d3dbsp.trianglesoups)):
                 mesh = bpy.data.meshes.new('mapgeo_' + str(i) )
                 obj = bpy.data.objects.new('mapgeo_' + str(i), mesh)
 
                 bpy.context.scene.objects.link(obj)
                 bpy.context.scene.objects.active = obj
                 obj.select = True
+                
+                if(len(obj.data.materials)):
+                    obj.data.materials[0] = bpy.data.materials[d3dbsp.materials[d3dbsp.trianglesoups[i].material_id].name]
+                else:
+                    obj.data.materials.append(bpy.data.materials[d3dbsp.materials[d3dbsp.trianglesoups[i].material_id].name])
+                
 
                 mesh = bpy.context.object.data
                 bm = bmesh.new()
@@ -125,6 +135,12 @@ class D3DBSPImporter(bpy.types.Operator):
     def import_entities(self, context):
         pass
     
-    def import_materials(self, materials):
-        pass
-
+    def import_materials(self, materials, material_fpath, texture_fpath):
+        if(len(materials)):
+            if(len(bpy.data.materials)):
+                for bpy_material in bpy.data.materials:
+                    bpy.data.materials.remove(bpy_material)
+            
+            for material in materials:
+                if(not (bpy.data.materials.get(material.name))):
+                    create_material.create_material(material.name, material_fpath, texture_fpath)

@@ -89,8 +89,7 @@ def decode_dxt5(byte_data, width, height):
 
     for y in range(0, height, 4):
         for x in range(0, width, 4):
-            a0, a1, ac0, ac1, c0, c1, code = struct.unpack("<2BHI2HI",
-                                                        data.read(16))
+            a0, a1, ac0, ac1, c0, c1, code = struct.unpack("<2BHI2HI", data.read(16))
 
             r0, g0, b0 = _decode565(c0)
             r1, g1, b1 = _decode565(c1)

@@ -2,8 +2,8 @@
 
 import bpy
 
-import read_material
-import read_texture
+from . import read_material
+from . import read_texture
 
 def create_material(name, material_fpath, texture_fpath):
     material_file = read_material.MTL()
