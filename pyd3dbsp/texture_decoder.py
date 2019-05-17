@@ -2,6 +2,8 @@ import struct
 from io import BytesIO
 
 # this code is straight up yoinked from Pillow
+# TODO extend it with validation when it gets the data of a
+# corrupt texture
    
 def _decode565(bits):
     a = ((bits >> 11) & 0x1f) << 3

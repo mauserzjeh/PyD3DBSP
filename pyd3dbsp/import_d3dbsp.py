@@ -70,11 +70,7 @@ class D3DBSPImporter(bpy.types.Operator):
                 bpy.context.scene.objects.active = obj
                 obj.select = True
                 
-                if(len(obj.data.materials)):
-                    obj.data.materials[0] = bpy.data.materials[d3dbsp.materials[d3dbsp.trianglesoups[i].material_id].name]
-                else:
-                    obj.data.materials.append(bpy.data.materials[d3dbsp.materials[d3dbsp.trianglesoups[i].material_id].name])
-                
+                obj.active_material = bpy.data.materials.get(d3dbsp.materials[d3dbsp.trianglesoups[i].material_id].name)
 
                 mesh = bpy.context.object.data
                 bm = bmesh.new()

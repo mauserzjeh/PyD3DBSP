@@ -5,7 +5,8 @@ import re
 from collections import namedtuple
 from enum import Enum
 
-from . import texture_decoder as DECODER
+#from . import texture_decoder as DECODER
+import texture_decoder as DECODER
 
 TEXTHeader = namedtuple('TEXTHeader', 
     ('magic, version,'
@@ -64,6 +65,7 @@ class Texture():
         elif(self.format and ( TextureFormat.DXT3.value or TextureFormat.DXT5.value )):
             self.texture_data = DECODER.decode_dxt5(raw_data, self.width, self.height)
         #TODO rest of the decoding if there is any
+        # and error handling when texture is corrupted etc.
         
 
     def load_texture(self, filepath):
