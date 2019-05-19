@@ -5,8 +5,7 @@ import re
 from collections import namedtuple
 from enum import Enum
 
-#from . import texture_decoder as DECODER
-import texture_decoder as DECODER
+from . import texture_decoder as DECODER
 
 TEXTHeader = namedtuple('TEXTHeader', 
     ('magic, version,'
