@@ -36,12 +36,12 @@ def create_material(name, material_fpath, texture_fpath):
 
         # create mix shader node and link it to the material output
         mix_shader_node = nodes.new('ShaderNodeMixShader')
-        mix_shader_node.location(100,0)
+        mix_shader_node.location = (100,0)
         links.new(mix_shader_node.outputs['Shader'], material_output_node.inputs['Surface'])
 
         # create transparent bsdf node and link it to the mix shader node
         transparent_bsdf_node = nodes.new('ShaderNodeBsdfTransparent')
-        transparent_bsdf_node.location(-200, 100)
+        transparent_bsdf_node.location = (-200, 100)
         links.new(transparent_bsdf_node.outputs['BSDF'], mix_shader_node.inputs['Shader'])
 
         # create principled bsdf node and link it to the material output
