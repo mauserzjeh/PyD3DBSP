@@ -61,8 +61,7 @@ class D3DBSPImporter(bpy.types.Operator):
 
             self.import_materials(d3dbsp.materials, self.materialPath, self.texturePath)
             
-            for i in range (0, 10):
-            #for i in range (0, len(d3dbsp.trianglesoups)):
+            for i in range (0, len(d3dbsp.trianglesoups)):
                 mesh = bpy.data.meshes.new('mapgeo_' + str(i) )
                 obj = bpy.data.objects.new('mapgeo_' + str(i), mesh)
 

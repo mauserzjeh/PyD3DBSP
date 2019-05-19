@@ -151,5 +151,3 @@ class MTL:
 
         with open(filepath, 'rb') as file:
             self._read_data(file)
-
-#TODO some error handling so we know if we made some mistakes and/or the file cannot be opened or contains incorrect data

@@ -65,14 +65,16 @@ class Texture():
         elif(self.format and ( TextureFormat.DXT3.value or TextureFormat.DXT5.value )):
             self.texture_data = DECODER.decode_dxt5(raw_data, self.width, self.height)
         #TODO rest of the decoding if there is any
-        # and error handling when texture is corrupted etc.
-        
 
     def load_texture(self, filepath):
         with open(filepath, 'rb') as file:
             self._read_header(file)
             if(self.header.magic == 'IWi' and self.header.version == 5):
-                self._read_raw_data(file)
+                try:
+                    self._read_raw_data(file)
+                except:
+                    return False
+
                 return True
             else:
                 return False
