@@ -32,32 +32,44 @@ def create_material(name, material_fpath, texture_fpath):
             material_output_node = [node for node in nodes if node.type == 'OUTPUT_MATERIAL'][0]
         except:
             material_output_node = nodes.new('ShaderNodeOutputMaterial')
-        material_output_node.location = (100,0)
+        material_output_node.location = (200,0)
+
+        # create mix shader node and link it to the material output
+        mix_shader_node = nodes.new('ShaderNodeMixShader')
+        mix_shader_node.location(100,0)
+        links.new(mix_shader_node.outputs['Shader'], material_output_node.inputs['Surface'])
+
+        # create transparent bsdf node and link it to the mix shader node
+        transparent_bsdf_node = nodes.new('ShaderNodeBsdfTransparent')
+        transparent_bsdf_node.location(-200, 100)
+        links.new(transparent_bsdf_node.outputs['BSDF'], mix_shader_node.inputs['Shader'])
 
         # create principled bsdf node and link it to the material output
         principled_bsdf_node = nodes.new('ShaderNodeBsdfPrincipled')
         principled_bsdf_node.location = (-200,0)
         principled_bsdf_node.width = 200
-        links.new(principled_bsdf_node.outputs['BSDF'], material_output_node.inputs['Surface'])
+        links.new(principled_bsdf_node.outputs['BSDF'], mix_shader_node.inputs['Shader'])
 
         # create texture input nodes and link them to the correct place
         counter = 0
         for maptype, mapname in material_file.mapinfo.items():
             texture_image = None
-            
-            #TODO check if texture already exists so we dont make duplicates
-            try:
-                texture_image = bpy.data.images.load(texture_fpath + '\\' + mapname + '.dds')
-            except:
-                print("Couldn't find " + mapname + ".dds. Trying to load from " + mapname + ".iwi")
 
-                texture = read_texture.Texture()
-                if(texture.load_texture(texture_fpath + '\\' + mapname + '.iwi')):
-                    texture_image = bpy.data.images.new(mapname, texture.width, texture.height)
-                    pixels = [x / 255 for x in texture.texture_data]
-                    texture_image.pixels = pixels
-                else:
-                    print("Couldn't load " + mapname + ".iwi. Image texture will not be created.")
+            try:
+                texture_image = bpy.data.images[mapname]
+            except:
+                try:
+                    texture_image = bpy.data.images.load(texture_fpath + '\\' + mapname + '.dds', True)
+                except:
+                    print("Couldn't find " + mapname + ".dds. Trying to load from " + mapname + ".iwi")
+
+                    texture = read_texture.Texture()
+                    if(texture.load_texture(texture_fpath + '\\' + mapname + '.iwi')):
+                        texture_image = bpy.data.images.new(mapname, texture.width, texture.height)
+                        pixels = [x / 255 for x in texture.texture_data]
+                        texture_image.pixels = pixels
+                    else:
+                        print("Couldn't load " + mapname + ".iwi. Image texture will not be created.")
 
             if(texture_image != None):
                 # creating texture input node
@@ -69,6 +81,7 @@ def create_material(name, material_fpath, texture_fpath):
                 # linking texture input node
                 if(maptype == read_material.MTLMapTypes['colorMap']):
                     links.new(texture_node.outputs['Color'], principled_bsdf_node.inputs['Base Color'])
+                    links.new(texture_node.outputs['Alpha'], mix_shader_node.inputs['Fac'])
                 elif(maptype == read_material.MTLMapTypes['specularMap']):
                     links.new(texture_node.outputs['Color'], principled_bsdf_node.inputs['Specular'])
                 elif(maptype == read_material.MTLMapTypes['normalMap']):
