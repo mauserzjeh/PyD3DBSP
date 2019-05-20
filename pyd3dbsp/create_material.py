@@ -32,7 +32,7 @@ def create_material(name, material_fpath, texture_fpath):
             material_output_node = [node for node in nodes if node.type == 'OUTPUT_MATERIAL'][0]
         except:
             material_output_node = nodes.new('ShaderNodeOutputMaterial')
-        material_output_node.location = (200,0)
+        material_output_node.location = (300,0)
 
         # create mix shader node and link it to the material output
         mix_shader_node = nodes.new('ShaderNodeMixShader')
