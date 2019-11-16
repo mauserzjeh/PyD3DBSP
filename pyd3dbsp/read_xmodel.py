@@ -83,5 +83,25 @@ class XModelSurface:
 
 class XModel:
     def __init__(self):
-        self.header = None
+        self.version = None
+        self.LODs = []
+
+    def _read_data(self, file):
+        file.seek(0)
+        self.version = struct.unpack('<H', file.read(2))[0]
+        if(self.version == XMODELENUMS.VERSION.value):
+            pass
+        else:
+            return False
+
+
+
+
+    def load_xmodel(self,filepath):
+        with open(filepath, 'rb') as file:
+            if(self._read_data(file)):
+                #TODO load surfaces
+                return True
+            else:
+                return False
     
