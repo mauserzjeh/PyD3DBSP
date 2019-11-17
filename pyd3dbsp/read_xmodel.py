@@ -103,7 +103,8 @@ class XModel:
                 current_lod['distance'] = struct.unpack('<f', file.read(4))[0]
                 current_lod['name'] = BINHELPER.read_nullstr(file)
 
-                self.LODs.append(current_lod)
+                if(len(current_lod['name'])):
+                    self.LODs.append(current_lod)
 
             file.read(4) #padding
             pad_count = struct.unpack('<I', file.read(4))[0]
@@ -111,7 +112,7 @@ class XModel:
                 subcount = struct.unpack('<I', file.read(4))[0]
                 file.read(((subcount*48)+36)) #padding
 
-            for k in range(4): #number of lods is always 4
+            for k in range(len(self.LODs)):
                 material_count = struct.unpack('<H', file.read(2))[0]
                 current_lod_materials = []
                 for l in range(material_count):
