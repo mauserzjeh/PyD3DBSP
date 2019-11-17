@@ -5,8 +5,8 @@ import os
 from collections import namedtuple
 from enum import Enum
 
-#from . import binary_helper as BINHELPER
-import binary_helper as BINHELPER
+from . import binary_helper as BINHELPER
+#import binary_helper as BINHELPER
 
 XMODELSURFHeader = namedtuple('XMODELSURFHeader','version, mesh_number')
 fmt_XMODELSURFHeader = '<HH'
@@ -75,6 +75,8 @@ class XModelSurface:
                     current_mesh['faces'].append(face)
                 
                 self.meshes.append(current_mesh)
+
+            return True
         else:
             return False
         
@@ -89,7 +91,7 @@ class XModel:
     def __init__(self):
         self.version = None
         self.LODs = []
-        self.xmodelsurface = None
+        self.surfaces = []
 
     def _read_data(self, file):
         file.seek(0)
@@ -116,18 +118,21 @@ class XModel:
                     current_lod_materials.append(BINHELPER.read_nullstr(file))
                 
                 self.LODs[k]['materials'] = current_lod_materials
+            
+            return True
         else:
             return False
 
-    def load_xmodel(self,filepath, only_highest_lod=True):
+    def load_xmodel(self,filepath, surfacefilepath, only_highest_lod=True):
         with open(filepath, 'rb') as file:
             if(self._read_data(file)):
-                #TODO load surfaces
-                if(only_highest_lod):
-                    pass
-                else:
-                    pass
-
+                for i in range(len(self.LODs)):
+                    xmodel_surface = XModelSurface()
+                    surfacefile = surfacefilepath + self.LODs[i]['name']
+                    if(xmodel_surface.load_xmodelsurface(surfacefile)):
+                        self.surfaces.append(xmodel_surface)
+                        if(only_highest_lod):
+                            break #only read highest lod, then we break the loop and ignore the rest of the LODs
                 return True
             else:
                 return False
