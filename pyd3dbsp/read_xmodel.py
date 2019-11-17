@@ -1,8 +1,11 @@
 import struct
 import os
 
+
 from collections import namedtuple
 from enum import Enum
+
+from . import binary_helper as BINHELPER
 
 XMODELSURFHeader = namedtuple('XMODELSURFHeader','version, mesh_number')
 fmt_XMODELSURFHeader = '<HH'
@@ -90,7 +93,13 @@ class XModel:
         file.seek(0)
         self.version = struct.unpack('<H', file.read(2))[0]
         if(self.version == XMODELENUMS.VERSION.value):
-            pass
+            file.read(25) #padding
+            for i in range(4): #number of lods is always 4
+                current_lod = {}
+                current_lod['distance'] = struct.unpack('<f', file.read(4))[0]
+
+                current_lod['name'] = BINHELPER.read_nullstr(file)
+
         else:
             return False
 
