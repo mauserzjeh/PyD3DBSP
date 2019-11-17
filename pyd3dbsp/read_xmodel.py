@@ -5,7 +5,8 @@ import os
 from collections import namedtuple
 from enum import Enum
 
-from . import binary_helper as BINHELPER
+#from . import binary_helper as BINHELPER
+import binary_helper as BINHELPER
 
 XMODELSURFHeader = namedtuple('XMODELSURFHeader','version, mesh_number')
 fmt_XMODELSURFHeader = '<HH'
@@ -88,6 +89,7 @@ class XModel:
     def __init__(self):
         self.version = None
         self.LODs = []
+        self.xmodelsurface = None
 
     def _read_data(self, file):
         file.seek(0)
@@ -97,20 +99,37 @@ class XModel:
             for i in range(4): #number of lods is always 4
                 current_lod = {}
                 current_lod['distance'] = struct.unpack('<f', file.read(4))[0]
-
                 current_lod['name'] = BINHELPER.read_nullstr(file)
 
+                self.LODs.append(current_lod)
+
+            file.read(4) #padding
+            pad_count = struct.unpack('<I', file.read(4))[0]
+            for j in range(pad_count):
+                subcount = struct.unpack('<I', file.read(4))[0]
+                file.read(((subcount*48)+36)) #padding
+
+            for k in range(4): #number of lods is always 4
+                material_count = struct.unpack('<H', file.read(2))[0]
+                current_lod_materials = []
+                for l in range(material_count):
+                    current_lod_materials.append(BINHELPER.read_nullstr(file))
+                
+                self.LODs[k]['materials'] = current_lod_materials
         else:
             return False
 
-
-
-
-    def load_xmodel(self,filepath):
+    def load_xmodel(self,filepath, only_highest_lod=True):
         with open(filepath, 'rb') as file:
             if(self._read_data(file)):
                 #TODO load surfaces
+                if(only_highest_lod):
+                    pass
+                else:
+                    pass
+
                 return True
             else:
                 return False
     
+
