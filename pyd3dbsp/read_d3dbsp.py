@@ -157,6 +157,10 @@ class LUMP(Enum):
     ENTITIES = 37
     PATHS = 38
 
+class D3DBSPENUMS(Enum):
+    MAGIC = 'IBSP'
+    VERSION = 4
+
 class D3DBSP:
     """
     D3DBSP class for reading and storing data of Call of Duty 2 .d3dbsp files.
@@ -186,6 +190,7 @@ class D3DBSP:
         self.vertices = []
         self.triangles = []
         self.entities = []
+        self.surfaces = []
 
     def _read_header(self, file):
         """
@@ -199,9 +204,10 @@ class D3DBSP:
         """
         file.seek(0)
         header_data = file.read(struct.calcsize(fmt_D3DBSPHeader))
-        self.header = D3DBSPHeader._make(struct.unpack(fmt_D3DBSPHeader, header_data))
+        header = D3DBSPHeader._make(struct.unpack(fmt_D3DBSPHeader, header_data))
         # decode header magic to string
-        self.header = self.header._replace(magic = self.header.magic.decode('utf-8'))
+        header = header._replace(magic = self.header.magic.decode('utf-8'))
+        return header
     
     def _read_lumps(self, file):
         """
@@ -214,13 +220,14 @@ class D3DBSP:
 
         """
         file.seek(struct.calcsize(fmt_D3DBSPHeader), os.SEEK_SET)
-        
+        lumps = []
         for i in range(39): # there are 39 lumps in the CoD2 .d3dbsp file
             lump_data = file.read(struct.calcsize(fmt_D3DBSPLump))
             lump = D3DBSPLump._make(struct.unpack(fmt_D3DBSPLump, lump_data))
-            self.lumps.append(lump)
+            lumps.append(lump)
+        return lumps
 
-    def _read_materials(self, file):
+    def _read_materials(self, file, lumps):
         """
         Read materials from file.
 
@@ -231,17 +238,18 @@ class D3DBSP:
 
         """
 
-        material_lump = self.lumps[LUMP.MATERIALS.value]
-        
+        material_lump = lumps[LUMP.MATERIALS.value]
+        materials = []
         file.seek(material_lump.offset, os.SEEK_SET)
         for i in range(0, material_lump.length, struct.calcsize(fmt_D3DBSPMaterial)):
             material_data = file.read(struct.calcsize(fmt_D3DBSPMaterial))
             material = D3DBSPMaterial._make(struct.unpack(fmt_D3DBSPMaterial, material_data))
             # decode material names and remove pad bytes
             material = material._replace(name = material.name.decode('utf-8').rstrip('\x00'))
-            self.materials.append(material)
+            materials.append(material)
+        return materials
 
-    def _read_trianglesoups(self, file):
+    def _read_trianglesoups(self, file, lumps):
         """
         Read trianglesoups from file.
 
@@ -252,15 +260,16 @@ class D3DBSP:
 
         """
 
-        trianglesoups_lump = self.lumps[LUMP.TRIANGLESOUPS.value]
-
+        trianglesoups_lump = lumps[LUMP.TRIANGLESOUPS.value]
+        trianglesoups = []
         file.seek(trianglesoups_lump.offset, os.SEEK_SET)
         for i in range(0, trianglesoups_lump.length, struct.calcsize(fmt_D3DBSPTriangleSoup)):
             trianglesoup_data = file.read(struct.calcsize(fmt_D3DBSPTriangleSoup))
             trianglesoup = D3DBSPTriangleSoup._make(struct.unpack(fmt_D3DBSPTriangleSoup, trianglesoup_data))
-            self.trianglesoups.append(trianglesoup)
+            trianglesoups.append(trianglesoup)
+        return trianglesoups
 
-    def _read_vertices(self, file):
+    def _read_vertices(self, file, lumps):
         """
         Read vertices from file.
 
@@ -271,15 +280,16 @@ class D3DBSP:
 
         """
 
-        vertices_lump = self.lumps[LUMP.VERTICES.value]
-
+        vertices_lump = lumps[LUMP.VERTICES.value]
+        vertices = []
         file.seek(vertices_lump.offset, os.SEEK_SET)
         for i in range(0, vertices_lump.length, struct.calcsize(fmt_D3DBSPVertex)):
             vertex_data = file.read(struct.calcsize(fmt_D3DBSPVertex))
             vertex = D3DBSPVertex._make(struct.unpack(fmt_D3DBSPVertex, vertex_data))
-            self.vertices.append(vertex)
+            vertices.append(vertex)
+        return vertices
 
-    def _read_triangles(self, file):
+    def _read_triangles(self, file, lumps):
         """
         Read triangles from file.
 
@@ -290,15 +300,16 @@ class D3DBSP:
 
         """
 
-        triangles_lump = self.lumps[LUMP.TRIANGLES.value]
-
+        triangles_lump = lumps[LUMP.TRIANGLES.value]
+        triangles = []
         file.seek(triangles_lump.offset, os.SEEK_SET)
         for i in range(0, triangles_lump.length, struct.calcsize(fmt_D3DBSPTriangle)):
             triangle_data = file.read(struct.calcsize(fmt_D3DBSPTriangle))
             triangle = D3DBSPTriangle._make(struct.unpack(fmt_D3DBSPTriangle, triangle_data))
-            self.triangles.append(triangle)
+            triangles.append(triangle)
+        return triangles
 
-    def _read_entities(self, file):
+    def _read_entities(self, file, lumps):
         """
         Read entities from file.
 
@@ -308,8 +319,8 @@ class D3DBSP:
         -----------
         """
 
-        entities_lump = self.lumps[LUMP.ENTITIES.value]
-
+        entities_lump = lumps[LUMP.ENTITIES.value]
+        entities = []
         file.seek(entities_lump.offset, os.SEEK_SET)
         entity_data = file.read(entities_lump.length)
         # decode the whole entity data into a single string and remove pad bytes
@@ -329,7 +340,8 @@ class D3DBSP:
                 for k, v in entity.items():
                     if(re.match('([-.0-9]+\s[-.0-9]+\s[-.0-9]+)', v)):
                         entity[k] = v.split(' ')
-                self.entities.append(entity)
+                entities.append(entity)
+        return entities
 
     def load_d3dbsp(self, filepath):
         """
@@ -348,15 +360,15 @@ class D3DBSP:
         """
 
         with open(filepath, 'rb') as file:
-            self._read_header(file)
+            header = self._read_header(file)
             # validate CoD2 .d3dbsp format
-            if(self.header.magic == 'IBSP' and self.header.version == 4):
-                self._read_lumps(file)
-                self._read_materials(file)
-                self._read_trianglesoups(file)
-                self._read_vertices(file)
-                self._read_triangles(file)
-                self._read_entities(file)
+            if(header.magic == D3DBSPENUMS.MAGIC.value and header.version == D3DBSPENUMS.VERSION.value):
+                lumps = self._read_lumps(file)
+                materials = self._read_materials(file, lumps)
+                trianglesoups = self._read_trianglesoups(file, lumps)
+                vertices = self._read_vertices(file, lumps)
+                triangles = self._read_triangles(file, lumps)
+                entities = self._read_entities(file, lumps)
                 return True
             else:
                 return False

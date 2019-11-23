@@ -7,78 +7,82 @@ from . import read_d3dbsp
 from . import create_material
 from . import read_xmodel
 
-def import_d3dbsp(self, context):
-        # will need to clean up this mess once i got the whole stuff working
-        d3dbsp = read_d3dbsp.D3DBSP()
-        if(d3dbsp.load_d3dbsp(self.filepath)):
 
-            self.import_materials(d3dbsp.materials, self.materialPath, self.texturePath)
+def import_mesh(surfaces, surface_name):
+
+    for i in range(0, len(surfaces)):
+        mesh = bpy.data.meshes.new(surface_name)
+        obj = bpy.data.objects.new(surface_name, mesh)
+
+        bpy.context.scene.objects.link(obj)
+        bpy.context.scene.objects.active = obj
+        obj.select = True
+
+        mesh = bpy.context.object.data
+        bm = bmesh.new()
+
+        uv_surface_list = []
+        vertexcolor_surface_list = []
+
+        surface = surfaces[i]
+
+        important_keys = set(['vertices', 'triangles'])
+        if(important_keys.issubset(surface.keys())):
+            vertices = surface['vertices']
+            triangles = surface['triangles']
             
-            for i in range (0, len(d3dbsp.trianglesoups)):
-                mesh = bpy.data.meshes.new('mapgeo_' + str(i) )
-                obj = bpy.data.objects.new('mapgeo_' + str(i), mesh)
-
-                bpy.context.scene.objects.link(obj)
-                bpy.context.scene.objects.active = obj
-                obj.select = True
-                
-                obj.active_material = bpy.data.materials.get(d3dbsp.materials[d3dbsp.trianglesoups[i].material_id].name)
-
-                mesh = bpy.context.object.data
-                bm = bmesh.new()
-
-                curr_soup = d3dbsp.trianglesoups[i]
-                curr_soup_tricount = (int) (curr_soup.triangle_length / 3)
-
-                uv_data_list = []
-                vertexcolor_data_list = []
-
-                for j in range (0, curr_soup_tricount):
-                    curr_triangle = d3dbsp.triangles[(int) (curr_soup.triangle_offset / 3 + j)]
-
-                    vertex1 = d3dbsp.vertices[(int) (curr_soup.vertex_offset + curr_triangle.v1)]
-                    vertex2 = d3dbsp.vertices[(int) (curr_soup.vertex_offset + curr_triangle.v2)]
-                    vertex3 = d3dbsp.vertices[(int) (curr_soup.vertex_offset + curr_triangle.v3)]
-
-                    v1 = bm.verts.new((vertex1.pos_x, vertex1.pos_y, vertex1.pos_z))
-                    v2 = bm.verts.new((vertex2.pos_x, vertex2.pos_y, vertex2.pos_z))
-                    v3 = bm.verts.new((vertex3.pos_x, vertex3.pos_y, vertex3.pos_z))
-
-                    uv_face_list = []
-                    vertexcolor_face_list = []
-
-                    uv_face_list.append((vertex1.uv_u, vertex1.uv_v))
-                    uv_face_list.append((vertex2.uv_u, vertex2.uv_v))
-                    uv_face_list.append((vertex3.uv_u, vertex3.uv_v))
-
-                    vertexcolor_face_list.append((vertex1.clr_r / 255, vertex1.clr_g / 255, vertex1.clr_b / 255))
-                    vertexcolor_face_list.append((vertex2.clr_r / 255, vertex2.clr_g / 255, vertex2.clr_b / 255))
-                    vertexcolor_face_list.append((vertex3.clr_r / 255, vertex3.clr_g / 255, vertex3.clr_b / 255))
-
-                    uv_data_list.append(uv_face_list)
-                    vertexcolor_data_list.append(vertexcolor_face_list)
-
-                    bm.verts.ensure_lookup_table()
-                    bm.verts.index_update()
-
-                    bm.faces.new((v1, v2, v3))
-                    bm.faces.ensure_lookup_table()
-                    bm.faces.index_update()
-
-                uv_layer = bm.loops.layers.uv.new()
-                vertexcolor_layer = bm.loops.layers.color.new()
-
-                for face, uv_face_data, vertexcolor_face_data in zip(bm.faces, uv_data_list, vertexcolor_data_list):
-                    for loop, uv_data, vertexcolor_data in zip(face.loops, uv_face_data, vertexcolor_face_data):
-                        loop[uv_layer].uv = uv_data
-                        loop[vertexcolor_layer] = vertexcolor_data
-
-                bm.to_mesh(mesh)
-                bm.free()
+            if('material' in surface):
+                material = surface['material']
+                obj.active_material = bpy.data.materials.get(material)
             
-            return True
+            for j in range(0, len(triangles)):
+                triangle = triangles[j]
+
+                vertex1 = vertices[triangle[0]]
+                vertex2 = vertices[triangle[1]]
+                vertex3 = vertices[triangle[2]]
+
+                v1 = bm.verts.new(vertex1['position'])
+                v2 = bm.verts.new(vertex2['position'])
+                v3 = bm.verts.new(vertex3['position'])
+
+                uv_triangle_list = []
+                uv_triangle_list.append(vertex1['uv'])
+                uv_triangle_list.append(vertex2['uv'])
+                uv_triangle_list.append(vertex3['uv'])
+                uv_surface_list.append(uv_triangle_list)
+
+                vertexcolor_triangle_list = []
+                vertexcolor_triangle_list.append(vertex1['color'])
+                vertexcolor_triangle_list.append(vertex2['color'])
+                vertexcolor_triangle_list.append(vertex3['color'])
+                vertexcolor_surface_list.append(vertexcolor_triangle_list)
+
+                bm.verts.ensure_lookup_table()
+                bm.verts.index_update()
+
+                bm.faces.new((v1, v2, v3))
+                bm.faces.ensure_lookup_table()
+                bm.faces.index_update()
+
+            uv_layer = bm.loops.layers.uv.new()
+            vertexcolor_layer = bm.loops.layers.color.new()
+
+            for face, uv_face_data, vertexcolor_face_data in zip(bm.faces, uv_surface_list, vertexcolor_surface_list):
+                for loop, uv_data, vertexcolor_data in zip(face.loops, uv_face_data, vertexcolor_face_data):
+                    loop[uv_layer].uv = uv_data
+                    loop[vertexcolor_layer] = vertexcolor_data
+
+            bm.to_mesh(mesh)
+            bm.free()
+        
         else:
-            return False
+            pass
+
+        
+
+def import_d3dbsp(self, context):
+    pass
     
 def import_entities(self, context):
     pass
