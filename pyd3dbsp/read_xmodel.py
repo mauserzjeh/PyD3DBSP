@@ -20,16 +20,16 @@ class XMODELENUMS(Enum):
 
 class XModelSurface:
     def __init__(self):
-        self.header = None
-        self.meshes = []
+        pass
 
     def _read_data(self, file):
         file.seek(0)
         header_data = file.read(struct.calcsize(fmt_XMODELSURFHeader))
-        self.header = XMODELSURFHeader._make(struct.unpack(fmt_XMODELSURFHeader, header_data))
+        header = XMODELSURFHeader._make(struct.unpack(fmt_XMODELSURFHeader, header_data))
 
-        if(self.header.version == XMODELENUMS.VERSION.value):
-            for i in range(self.header.mesh_number):
+        if(header.version == XMODELENUMS.VERSION.value):
+            meshes = []
+            for i in range(header.mesh_number):
                 current_mesh = {}
 
                 mesh_header_data = file.read(struct.calcsize(fmt_XMODELSURFMeshHeader))
@@ -69,34 +69,31 @@ class XModelSurface:
                     #vertex['weights'] = [] #TODO reverse weights - placeholder
                     current_mesh['vertices'].append(vertex)
 
-                current_mesh['faces'] = []
+                current_mesh['triangles'] = []
                 for l in range(mesh_header.triangle_number):
                     face = struct.unpack('<HHH', file.read(6))
-                    current_mesh['faces'].append(face)
+                    current_mesh['triangles'].append(face)
                 
-                self.meshes.append(current_mesh)
+                meshes.append(current_mesh)
 
-            return True
+            return meshes
         else:
             return False
         
     def load_xmodelsurface(self, filepath):
         with open(filepath, 'rb') as file:
-            if(self._read_data(file)):
-                return True
-            else:
-                return False
+            surfaces = self._read_data(file)
+            return surfaces
 
 class XModel:
     def __init__(self):
-        self.version = None
-        self.LODs = []
         self.surfaces = []
 
     def _read_data(self, file):
         file.seek(0)
-        self.version = struct.unpack('<H', file.read(2))[0]
-        if(self.version == XMODELENUMS.VERSION.value):
+        version = struct.unpack('<H', file.read(2))[0]
+        if(version == XMODELENUMS.VERSION.value):
+            LODs = []
             file.read(25) #padding
             for i in range(4): #number of lods is always 4
                 current_lod = {}
@@ -104,7 +101,7 @@ class XModel:
                 current_lod['name'] = BINHELPER.read_nullstr(file)
 
                 if(len(current_lod['name'])):
-                    self.LODs.append(current_lod)
+                    LODs.append(current_lod)
 
             file.read(4) #padding
             pad_count = struct.unpack('<I', file.read(4))[0]
@@ -112,29 +109,27 @@ class XModel:
                 subcount = struct.unpack('<I', file.read(4))[0]
                 file.read(((subcount*48)+36)) #padding
 
-            for k in range(len(self.LODs)):
+            for k in range(len(LODs)):
                 material_count = struct.unpack('<H', file.read(2))[0]
                 current_lod_materials = []
                 for l in range(material_count):
                     current_lod_materials.append(BINHELPER.read_nullstr(file))
                 
-                self.LODs[k]['materials'] = current_lod_materials
+                LODs[k]['materials'] = current_lod_materials
             
-            return True
+            return LODs
         else:
             return False
 
-    def load_xmodel(self,filepath, surfacefilepath, only_highest_lod=True):
+    def load_xmodel(self,filepath, xmodelsurfpath, only_highest_lod=True):
         with open(filepath, 'rb') as file:
-            if(self._read_data(file)):
-                for i in range(len(self.LODs)):
-                    xmodel_surface = XModelSurface()
-                    surfacefile = surfacefilepath + self.LODs[i]['name']
-                    if(xmodel_surface.load_xmodelsurface(surfacefile)):
-                        self.surfaces.append(xmodel_surface)
-                        if(only_highest_lod):
-                            break #only read highest lod, then we break the loop and ignore the rest of the LODs
-                return True
+            LODs = self._read_data(file)
+            if(LODs):
+                xmodelsurface = XModelSurface()
+                xmodelsurf = xmodelsurfpath + LODs[0]['name'] #using highest lod all the time
+                surfaces = xmodelsurface.load_xmodelsurface(xmodelsurf)
+                #TODO some error handling
+                self.surfaces = surfaces
             else:
                 return False
     

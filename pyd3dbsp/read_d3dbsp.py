@@ -346,7 +346,7 @@ class D3DBSP:
 
             surface['material'] = materials[trianglesoup.material_id].name
             surface['triangles'] = []
-            surface['vertices'] = []
+            surface['vertices'] = {}
 
             triangle_count = (int) (trianglesoup.triangle_length / 3)
             
@@ -365,7 +365,7 @@ class D3DBSP:
                     
                     vert = vertices[k]
                     vertex['normal'] = (vert.norm_x, vert.norm_y, vert.norm_z)
-                    vertex['color'] = (vert.clr_r / 255, vert.clr_g / 255, vert.clr_b / 255)
+                    vertex['color'] = (vert.clr_r / 255, vert.clr_g / 255, vert.clr_b / 255, vert.clr_a / 255)
                     vertex['uv'] = (vert.uv_u, vert.uv_v)
                     vertex['position'] = (vert.pos_x, vert.pos_y, vert.pos_z)
 
@@ -402,8 +402,6 @@ class D3DBSP:
                 entities = self._read_entities(file, lumps)
 
                 self.surfaces = self._create_surfaces(materials, trianglesoups, vertices, triangles)
-
-
                 return True
             else:
                 return False

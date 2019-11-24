@@ -4,6 +4,8 @@ import re
 
 from collections import namedtuple
 
+from . import binary_helper as BINHELPER
+
 """
 MTLHeader type definition. Used to store header information.
 
@@ -114,8 +116,7 @@ class MTL:
             
             # read the first string of the mapinfoblock (from first offset to second offset)
             file.seek(mapinfoblock.first_ofs)
-            str_first = file.read(mapinfoblock.second_ofs - mapinfoblock.first_ofs)
-            str_first = str_first.decode('utf-8').rstrip('\x00')
+            str_first = BINHELPER.read_nullstr(file)
 
             # since we don't know where the second string ends 
             # we read until we have completely read in a NULL terminated string
@@ -124,12 +125,7 @@ class MTL:
             # we would have to do a special case for the last mapinfoblock, where we cant measure
             # the length until the next mapinfoblock, since there are no more mapinfoblocks)
             file.seek(mapinfoblock.second_ofs)
-            str_second = b''
-            c = None
-            while(c != b'\x00'):
-                c = file.read(1)
-                str_second += c
-            str_second = str_second.decode('utf-8').rstrip('\x00')
+            str_second = BINHELPER.read_nullstr(file)
 
             # material files might contain the map type and name in different order 
             # so we make sure to store the type as key and the name as value
