@@ -200,7 +200,7 @@ class D3DBSP:
         header_data = file.read(struct.calcsize(fmt_D3DBSPHeader))
         header = D3DBSPHeader._make(struct.unpack(fmt_D3DBSPHeader, header_data))
         # decode header magic to string
-        header = header._replace(magic = self.header.magic.decode('utf-8'))
+        header = header._replace(magic = header.magic.decode('utf-8'))
         return header
     
     def _read_lumps(self, file):
@@ -338,7 +338,41 @@ class D3DBSP:
         return entities
 
     def _create_surfaces(self, materials, trianglesoups, vertices, triangles):
-        pass
+        surfaces = []
+        for i in range(0, len(trianglesoups)):
+            surface = {}
+
+            trianglesoup = trianglesoups[i]
+
+            surface['material'] = materials[trianglesoup.material_id].name
+            surface['triangles'] = []
+            surface['vertices'] = []
+
+            triangle_count = (int) (trianglesoup.triangle_length / 3)
+            
+            for j in range(0, len(triangle_count)):
+                
+                triangle_id = (int) (trianglesoup.triangle_offset / 3 + j)
+                triangle = triangles[triangle_id]
+                surface['triangles'].append(triangle)
+
+                vertex1_id = (int) (trianglesoup.vertex_offset + triangle.v1)
+                vertex2_id = (int) (trianglesoup.vertex_offset + triangle.v2)
+                vertex3_id = (int) (trianglesoup.vertex_offset + triangle.v3)
+
+                for k in (vertex1_id, vertex2_id, vertex3_id):
+                    vertex = {}
+                    
+                    vert = vertices[k]
+                    vertex['normal'] = (vert.norm_x, vert.norm_y, vert.norm_z)
+                    vertex['color'] = (vert.clr_r / 255, vert.clr_g / 255, vert.clr_b / 255)
+                    vertex['uv'] = (vert.uv_u, vert.uv_v)
+                    vertex['position'] = (vert.pos_x, vert.pos_y, vert.pos_z)
+
+                    surface['vertices'][k] = vertex
+
+            surfaces.append(surface)
+        return surfaces
 
     def load_d3dbsp(self, filepath):
         """
@@ -367,6 +401,7 @@ class D3DBSP:
                 triangles = self._read_triangles(file, lumps)
                 entities = self._read_entities(file, lumps)
 
+                self.surfaces = self._create_surfaces(materials, trianglesoups, vertices, triangles)
 
 
                 return True
