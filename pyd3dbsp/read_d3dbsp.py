@@ -183,14 +183,8 @@ class D3DBSP:
 
         """
 
-        self.header = None
-        self.lumps = []
-        self.materials = []
-        self.trianglesoups = []
-        self.vertices = []
-        self.triangles = []
-        self.entities = []
         self.surfaces = []
+        self.entities = []
 
     def _read_header(self, file):
         """
@@ -343,6 +337,9 @@ class D3DBSP:
                 entities.append(entity)
         return entities
 
+    def _create_surfaces(self, materials, trianglesoups, vertices, triangles):
+        pass
+
     def load_d3dbsp(self, filepath):
         """
         Load a Call of Duty 2 .d3dbsp file and read all the necessary data from it.
@@ -369,6 +366,9 @@ class D3DBSP:
                 vertices = self._read_vertices(file, lumps)
                 triangles = self._read_triangles(file, lumps)
                 entities = self._read_entities(file, lumps)
+
+
+
                 return True
             else:
                 return False

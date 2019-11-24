@@ -1,12 +1,6 @@
-import gc
-import math
-import os
-import struct
-
 import bpy
 import bpy.ops
 import bpy.props
-import bmesh
 
 from . import importer
 
@@ -20,23 +14,9 @@ class PyD3DBSP(bpy.types.Operator):
     filename_ext = '.d3dbsp'
     filter_glob = bpy.props.StringProperty(default="*.d3dbsp", options={'HIDDEN'})
 
-    materialPath = bpy.props.StringProperty(
-        name = 'Material Path',
-        description = 'Directory path containing the materials.',
-        default = '',
-        #subtype = 'DIR_PATH'
-    )
-
-    texturePath = bpy.props.StringProperty(
-        name = 'Texture Path',
-        description = 'Directory path containing the textures.',
-        default = '',
-        #subtype = 'DIR_PATH'
-    )
-
-    xmodelPath = bpy.props.StringProperty(
-        name = 'Models Path',
-        description = 'Directory path containing map entities.',
+    assetpath = bpy.props.StringProperty(
+        name = 'Asset Path',
+        description = 'Directory containing CoD2 assets.',
         default = '',
         #subtype = 'DIR_PATH'
     )
