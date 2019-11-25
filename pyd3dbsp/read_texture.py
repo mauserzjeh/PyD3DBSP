@@ -65,6 +65,7 @@ class Texture():
             self.texture_data = DECODER.decode_dxt5(raw_data, self.width, self.height)
         #TODO rest of the decoding if there is any
 
+    #TODO
     def load_texture(self, filepath):
         with open(filepath, 'rb') as file:
             self._read_header(file)

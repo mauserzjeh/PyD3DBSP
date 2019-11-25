@@ -5,6 +5,8 @@ import re
 from collections import namedtuple
 from enum import Enum
 
+from . import helper as HELPER
+
 """
 D3DBSPHeader type definition. Used to store file header information.
 
@@ -389,19 +391,21 @@ class D3DBSP:
         --------
 
         """
+        try:
+            with open(filepath, 'rb') as file:
+                header = self._read_header(file)
+                # validate CoD2 .d3dbsp format
+                if(header.magic == D3DBSPENUMS.MAGIC.value and header.version == D3DBSPENUMS.VERSION.value):
+                    lumps = self._read_lumps(file)
+                    materials = self._read_materials(file, lumps)
+                    trianglesoups = self._read_trianglesoups(file, lumps)
+                    vertices = self._read_vertices(file, lumps)
+                    triangles = self._read_triangles(file, lumps)
+                    self.entities = self._read_entities(file, lumps)
 
-        with open(filepath, 'rb') as file:
-            header = self._read_header(file)
-            # validate CoD2 .d3dbsp format
-            if(header.magic == D3DBSPENUMS.MAGIC.value and header.version == D3DBSPENUMS.VERSION.value):
-                lumps = self._read_lumps(file)
-                materials = self._read_materials(file, lumps)
-                trianglesoups = self._read_trianglesoups(file, lumps)
-                vertices = self._read_vertices(file, lumps)
-                triangles = self._read_triangles(file, lumps)
-                entities = self._read_entities(file, lumps)
-
-                self.surfaces = self._create_surfaces(materials, trianglesoups, vertices, triangles)
-                return True
-            else:
-                return False
+                    self.surfaces = self._create_surfaces(materials, trianglesoups, vertices, triangles)
+                else:
+                    #TODO
+                    return False
+        except:
+            HELPER.file_not_found(filepath, "not found or some unhandled error occured.")

@@ -5,8 +5,7 @@ import os
 from collections import namedtuple
 from enum import Enum
 
-from . import binary_helper as BINHELPER
-#import binary_helper as BINHELPER
+from . import helper as HELPER
 
 XMODELSURFHeader = namedtuple('XMODELSURFHeader','version, mesh_number')
 fmt_XMODELSURFHeader = '<HH'
@@ -35,14 +34,10 @@ class XModelSurface:
                 mesh_header_data = file.read(struct.calcsize(fmt_XMODELSURFMeshHeader))
                 mesh_header = XMODELSURFMeshHeader._make(struct.unpack(fmt_XMODELSURFMeshHeader, mesh_header_data))
 
-                current_mesh['header'] = mesh_header
-
                 mesh_is_physiqued = False
                 if(mesh_header.vertex_number2 == XMODELENUMS.PHYSIQUED.value):
                     mesh_is_physiqued = True
                 
-                current_mesh['physiqued'] = mesh_is_physiqued
-
                 if(mesh_is_physiqued):
                     file.read(2) #padding
                 
@@ -81,9 +76,12 @@ class XModelSurface:
             return False
         
     def load_xmodelsurface(self, filepath):
-        with open(filepath, 'rb') as file:
-            surfaces = self._read_data(file)
-            return surfaces
+        try:
+            with open(filepath, 'rb') as file:
+                surfaces = self._read_data(file)
+                return surfaces
+        except:
+            HELPER.file_not_found(filepath, "not found or some unhandled error occured.")
 
 class XModel:
     def __init__(self):
@@ -98,7 +96,7 @@ class XModel:
             for i in range(4): #number of lods is always 4
                 current_lod = {}
                 current_lod['distance'] = struct.unpack('<f', file.read(4))[0]
-                current_lod['name'] = BINHELPER.read_nullstr(file)
+                current_lod['name'] = HELPER.read_nullstr(file)
 
                 if(len(current_lod['name'])):
                     LODs.append(current_lod)
@@ -113,7 +111,7 @@ class XModel:
                 material_count = struct.unpack('<H', file.read(2))[0]
                 current_lod_materials = []
                 for l in range(material_count):
-                    current_lod_materials.append(BINHELPER.read_nullstr(file))
+                    current_lod_materials.append(HELPER.read_nullstr(file))
                 
                 LODs[k]['materials'] = current_lod_materials
             
@@ -121,16 +119,27 @@ class XModel:
         else:
             return False
 
-    def load_xmodel(self,filepath, xmodelsurfpath, only_highest_lod=True):
-        with open(filepath, 'rb') as file:
-            LODs = self._read_data(file)
-            if(LODs):
-                xmodelsurface = XModelSurface()
-                xmodelsurf = xmodelsurfpath + LODs[0]['name'] #using highest lod all the time
-                surfaces = xmodelsurface.load_xmodelsurface(xmodelsurf)
-                #TODO some error handling
-                self.surfaces = surfaces
-            else:
-                return False
+    def load_xmodel(self,filepath, xmodelsurfpath):
+        try:
+            with open(filepath, 'rb') as file:
+                LODs = self._read_data(file)
+                if(LODs):
+                    xmodelsurface = XModelSurface()
+                    LOD0 = LODs[0]
+                    xmodelsurf = xmodelsurfpath + LOD0['name'] #using highest lod all the time
+                    surfaces = xmodelsurface.load_xmodelsurface(xmodelsurf)
+
+                    if(len(LOD0['materials']) == len(surfaces)):
+                        for i in range(0, len(surfaces)):
+                            surfaces[i]['material'] = LOD0['materials'][i]
+                    else:
+                        print("Mismatching number of LOD materials and surfaces. Materials will be omitted.")
+
+                    self.surfaces = surfaces
+                else:
+                    return False
+        except:
+            HELPER.file_not_found(filepath, "not found or some unhandled error occured.")
+
     
 
