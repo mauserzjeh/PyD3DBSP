@@ -2,13 +2,13 @@
 
 import bpy
 
-from . import read_material
-from . import read_texture
+from . import read_material as MATERIALREADER
+from . import read_texture as TEXTUREREADER
 
 def create_material(name, material_fpath, texture_fpath):
     material_loading = True
 
-    material_file = read_material.MTL()
+    material_file = MATERIALREADER.MTL()
     try:
         material_file.load_material(material_fpath + '\\' + name)
     except:
@@ -63,7 +63,7 @@ def create_material(name, material_fpath, texture_fpath):
                 except:
                     print("Couldn't find " + mapname + ".dds. Trying to load from " + mapname + ".iwi")
 
-                    texture = read_texture.Texture()
+                    texture = TEXTUREREADER.Texture()
                     if(texture.load_texture(texture_fpath + '\\' + mapname + '.iwi')):
                         texture_image = bpy.data.images.new(mapname, texture.width, texture.height)
                         pixels = [x / 255 for x in texture.texture_data]
@@ -79,19 +79,19 @@ def create_material(name, material_fpath, texture_fpath):
                 texture_node.image = texture_image
 
                 # linking texture input node
-                if(maptype == read_material.MTLMapTypes['colorMap']):
+                if(maptype == MATERIALREADER.MTLMapTypes['colorMap']):
                     links.new(texture_node.outputs['Color'], principled_bsdf_node.inputs['Base Color'])
                     links.new(texture_node.outputs['Alpha'], mix_shader_node.inputs['Fac'])
-                elif(maptype == read_material.MTLMapTypes['specularMap']):
+                elif(maptype == MATERIALREADER.MTLMapTypes['specularMap']):
                     links.new(texture_node.outputs['Color'], principled_bsdf_node.inputs['Specular'])
-                elif(maptype == read_material.MTLMapTypes['normalMap']):
+                elif(maptype == MATERIALREADER.MTLMapTypes['normalMap']):
                     # create normalmap node
                     bump_node = nodes.new('ShaderNodeBump')
                     bump_node.location = (-450, -500)
 
                     links.new(texture_node.outputs['Color'], bump_node.inputs['Height'])
                     links.new(bump_node.outputs['Normal'], principled_bsdf_node.inputs['Normal'])
-                elif(maptype == read_material.MTLMapTypes['detailMap']):
+                elif(maptype == MATERIALREADER.MTLMapTypes['detailMap']):
                     pass
 
                 counter += 1

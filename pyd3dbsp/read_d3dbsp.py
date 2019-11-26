@@ -184,7 +184,7 @@ class D3DBSP:
         -----------
 
         """
-
+        self.mapname = ''
         self.surfaces = []
         self.entities = []
 
@@ -393,6 +393,7 @@ class D3DBSP:
         """
         try:
             with open(filepath, 'rb') as file:
+                self.mapname = HELPER.return_filename_from_filepath(filepath, False)
                 header = self._read_header(file)
                 # validate CoD2 .d3dbsp format
                 if(header.magic == D3DBSPENUMS.MAGIC.value and header.version == D3DBSPENUMS.VERSION.value):
@@ -402,10 +403,12 @@ class D3DBSP:
                     vertices = self._read_vertices(file, lumps)
                     triangles = self._read_triangles(file, lumps)
                     self.entities = self._read_entities(file, lumps)
-
                     self.surfaces = self._create_surfaces(materials, trianglesoups, vertices, triangles)
+                    print('File reading was successful!')
+                    return True
                 else:
-                    #TODO
+                    print(header.magic + header.version + ' file version is not supported!')
                     return False
         except:
             HELPER.file_not_found(filepath, "not found or some unhandled error occured.")
+            return False

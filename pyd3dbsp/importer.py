@@ -3,12 +3,12 @@ import bpy.ops
 import bpy.props
 import bmesh
 
-from . import read_d3dbsp
-from . import create_material
-from . import read_xmodel
+from . import read_d3dbsp as D3DBSPREADER
+from . import material as MATERIAL
+from . import read_xmodel as XMODELREADER
 
 
-def import_mesh(surfaces, surface_name):
+def create_mesh(surfaces, surface_name):
 
     for i in range(0, len(surfaces)):
         mesh = bpy.data.meshes.new(surface_name)
@@ -96,4 +96,4 @@ def import_materials(self, materials, material_fpath, texture_fpath):
         
         for material in materials:
             if(not (bpy.data.materials.get(material.name))):
-                create_material.create_material(material.name, material_fpath, texture_fpath)
+                MATERIAL.create_material(material.name, material_fpath, texture_fpath)

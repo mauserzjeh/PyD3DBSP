@@ -17,6 +17,7 @@ class XMODELENUMS(Enum):
     VERSION = 20
     PHYSIQUED = 65535
 
+#TODO error handling in this whole shite
 class XModelSurface:
     def __init__(self):
         pass
@@ -85,6 +86,7 @@ class XModelSurface:
 
 class XModel:
     def __init__(self):
+        self.modelname = ''
         self.surfaces = []
 
     def _read_data(self, file):
@@ -122,6 +124,7 @@ class XModel:
     def load_xmodel(self,filepath, xmodelsurfpath):
         try:
             with open(filepath, 'rb') as file:
+                self.modelname = HELPER.return_filename_from_filepath(filepath, False)
                 LODs = self._read_data(file)
                 if(LODs):
                     xmodelsurface = XModelSurface()

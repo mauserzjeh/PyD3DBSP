@@ -10,9 +10,12 @@ def read_nullstr(file):
     string = string.decode('utf-8').rstrip('\x00')
     return string
 
-def return_filename_from_filepath(filepath):
+def return_filename_from_filepath(filepath, include_extension=True):
     head, tail = os.path.split(filepath)
-    return tail or os.path.basename(head)
+    if(include_extension):
+      return tail or os.path.basename(head)
+    else:
+      return os.path.splitext(tail)[0] or os.path.splitext(os.path.basename(head))[0]
 
 def file_not_found(filepath, msg):
     filename = return_filename_from_filepath(filepath)
