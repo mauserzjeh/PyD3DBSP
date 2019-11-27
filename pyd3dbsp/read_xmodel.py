@@ -17,12 +17,12 @@ class XMODELENUMS(Enum):
     VERSION = 20
     PHYSIQUED = 65535
 
-#TODO error handling in this whole shite
-class XModelSurface:
+class XModel:
     def __init__(self):
-        pass
+        self.modelname = ''
+        self.surfaces = []
 
-    def _read_data(self, file):
+    def _read_surface_data(self, file):
         file.seek(0)
         header_data = file.read(struct.calcsize(fmt_XMODELSURFHeader))
         header = XMODELSURFHeader._make(struct.unpack(fmt_XMODELSURFHeader, header_data))
@@ -79,15 +79,10 @@ class XModelSurface:
     def load_xmodelsurface(self, filepath):
         try:
             with open(filepath, 'rb') as file:
-                surfaces = self._read_data(file)
+                surfaces = self._read_surface_data(file)
                 return surfaces
         except:
             HELPER.file_not_found(filepath, "not found or some unhandled error occured.")
-
-class XModel:
-    def __init__(self):
-        self.modelname = ''
-        self.surfaces = []
 
     def _read_data(self, file):
         file.seek(0)
@@ -127,10 +122,10 @@ class XModel:
                 self.modelname = HELPER.return_filename_from_filepath(filepath, False)
                 LODs = self._read_data(file)
                 if(LODs):
-                    xmodelsurface = XModelSurface()
-                    LOD0 = LODs[0]
-                    xmodelsurf = xmodelsurfpath + LOD0['name'] #using highest lod all the time
-                    surfaces = xmodelsurface.load_xmodelsurface(xmodelsurf)
+                    LOD0 = LODs[0] #using highest lod all the time
+                    xmodelsurf = xmodelsurfpath + LOD0['name'] 
+                    
+                    surfaces = self.load_xmodelsurface(xmodelsurf)
 
                     if(len(LOD0['materials']) == len(surfaces)):
                         for i in range(0, len(surfaces)):
@@ -139,6 +134,8 @@ class XModel:
                         print("Mismatching number of LOD materials and surfaces. Materials will be omitted.")
 
                     self.surfaces = surfaces
+                    print(self.modelname + " is loaded.")
+                    return True
                 else:
                     return False
         except:

@@ -160,6 +160,9 @@ class LUMP(Enum):
     PATHS = 38
 
 class D3DBSPENUMS(Enum):
+    """
+    D3DBSPENUMS class for storing some important values.
+    """
     MAGIC = 'IBSP'
     VERSION = 4
 
@@ -174,12 +177,8 @@ class D3DBSP:
 
         Properties:
         -----------
-        header          - D3DBSPHeader  - header information 
-        lumps           - list          - list of D3DBSPLump
-        materials       - list          - list of D3DBSPMaterial 
-        trianglesoups   - list          - list of D3DBSPTriangleSoup
-        vertices        - list          - list of D3DBSPVertex
-        triangles       - list          - list of D3DBSPTriangle
+        mapname         - string        - name of the map
+        surfaces        - list          - list of dictionaries containing surface info
         entities        - list          - list of dictionaries containing entity info
         -----------
 
@@ -197,6 +196,10 @@ class D3DBSP:
         file - file object - File to read from
         -----------
 
+        Returns:
+        --------
+        Namedtuple - Header magic and version
+        --------
         """
         file.seek(0)
         header_data = file.read(struct.calcsize(fmt_D3DBSPHeader))
@@ -214,6 +217,10 @@ class D3DBSP:
         file - file object - File to read from
         -----------
 
+        Returns:
+        --------
+        List - list of lumps
+        --------
         """
         file.seek(struct.calcsize(fmt_D3DBSPHeader), os.SEEK_SET)
         lumps = []
@@ -229,9 +236,14 @@ class D3DBSP:
 
         Parameters:
         -----------
-        file - file object - File to read from
+        file    - file object   - File to read from
+        lumps   - list          - List of lumps
         -----------
 
+        Returns:
+        --------
+        List - list of materials
+        --------
         """
 
         material_lump = lumps[LUMP.MATERIALS.value]
@@ -251,9 +263,14 @@ class D3DBSP:
 
         Parameters:
         -----------
-        file - file object - File to read from
+        file    - file object   - File to read from
+        lumps   - list          - List of lumps
         -----------
 
+        Returns:
+        --------
+        List - list of trianglesoups
+        --------
         """
 
         trianglesoups_lump = lumps[LUMP.TRIANGLESOUPS.value]
@@ -271,9 +288,14 @@ class D3DBSP:
 
         Parameters:
         -----------
-        file - file object - File to read from
+        file    - file object   - File to read from
+        lumps   - list          - List of lumps
         -----------
 
+        Returns:
+        --------
+        List - list of vertices
+        --------
         """
 
         vertices_lump = lumps[LUMP.VERTICES.value]
@@ -291,9 +313,14 @@ class D3DBSP:
 
         Parameters:
         -----------
-        file - file object - File to read from
+        file    - file object   - File to read from
+        lumps   - list          - List of lumps
         -----------
-
+        
+        Returns:
+        --------
+        List - list of triangles
+        --------
         """
 
         triangles_lump = lumps[LUMP.TRIANGLES.value]
@@ -311,8 +338,14 @@ class D3DBSP:
 
         Parameters:
         -----------
-        file - file object - File to read from
+        file    - file object   - File to read from
+        lumps   - list          - List of lumps
         -----------
+        
+        Returns:
+        --------
+        List - list of entities
+        --------
         """
 
         entities_lump = lumps[LUMP.ENTITIES.value]
@@ -338,42 +371,76 @@ class D3DBSP:
                         entity[k] = v.split(' ')
                 entities.append(entity)
         return entities
-
+    
     def _create_surfaces(self, materials, trianglesoups, vertices, triangles):
-        surfaces = []
+        """
+        Create surface data from the read data.
+
+        Parameters:
+        -----------
+        materials       - list - list of materials
+        trianglesoups   - list - list of trianglesoups
+        vertices        - list - list of vertices
+        triangles       - list - list of triangles
+        -----------
+
+        Returns:
+        --------
+        List - list of surfaces
+        --------
+        """
+        surfaces = [] # a trianglesoup describes a surface
+        # loop through the trianglesoups
         for i in range(0, len(trianglesoups)):
             surface = {}
 
+            # select current trianglesoup (surface)
             trianglesoup = trianglesoups[i]
 
+            # get the material used by the surface
             surface['material'] = materials[trianglesoup.material_id].name
+            # create list for triangles in the surface
             surface['triangles'] = []
+            # create dictionary for vertices in the surface
             surface['vertices'] = {}
-
+            # triangle count of the surface
             triangle_count = (int) (trianglesoup.triangle_length / 3)
-            
-            for j in range(0, len(triangle_count)):
-                
-                triangle_id = (int) (trianglesoup.triangle_offset / 3 + j)
-                triangle = triangles[triangle_id]
-                surface['triangles'].append(triangle)
 
+            # loop through the triangles
+            for j in range(0, triangle_count):
+                
+                # get the current triangle id
+                triangle_id = (int) (trianglesoup.triangle_offset / 3 + j)
+                # get the current triangle
+                triangle = triangles[triangle_id]
+                
+                # get 3 vertex id to create a triangle
                 vertex1_id = (int) (trianglesoup.vertex_offset + triangle.v1)
                 vertex2_id = (int) (trianglesoup.vertex_offset + triangle.v2)
                 vertex3_id = (int) (trianglesoup.vertex_offset + triangle.v3)
+                
+                # store the vertex ids for the triangle
+                surface['triangles'].append((vertex1_id, vertex2_id, vertex3_id))
 
+                # loop through each vertex id
                 for k in (vertex1_id, vertex2_id, vertex3_id):
                     vertex = {}
                     
+                    # get the vertex
                     vert = vertices[k]
+
+                    # store the vertex data
                     vertex['normal'] = (vert.norm_x, vert.norm_y, vert.norm_z)
                     vertex['color'] = (vert.clr_r / 255, vert.clr_g / 255, vert.clr_b / 255, vert.clr_a / 255)
                     vertex['uv'] = (vert.uv_u, vert.uv_v)
                     vertex['position'] = (vert.pos_x, vert.pos_y, vert.pos_z)
 
+                    # store the vertex
                     surface['vertices'][k] = vertex
 
+            # store the surface
             surfaces.append(surface)
+        # return the surfaces
         return surfaces
 
     def load_d3dbsp(self, filepath):
@@ -397,17 +464,24 @@ class D3DBSP:
                 header = self._read_header(file)
                 # validate CoD2 .d3dbsp format
                 if(header.magic == D3DBSPENUMS.MAGIC.value and header.version == D3DBSPENUMS.VERSION.value):
+                    # read lumps
                     lumps = self._read_lumps(file)
+                    # read materials
                     materials = self._read_materials(file, lumps)
+                    # read trianglesoups
                     trianglesoups = self._read_trianglesoups(file, lumps)
+                    # read vertices
                     vertices = self._read_vertices(file, lumps)
+                    # read triangles
                     triangles = self._read_triangles(file, lumps)
+                    # read entities
                     self.entities = self._read_entities(file, lumps)
+                    # create surfaces
                     self.surfaces = self._create_surfaces(materials, trianglesoups, vertices, triangles)
-                    print('File reading was successful!')
+                    print(self.mapname + " is loaded.")
                     return True
                 else:
-                    print(header.magic + header.version + ' file version is not supported!')
+                    print(header.magic + header.version + " file version is not supported!")
                     return False
         except:
             HELPER.file_not_found(filepath, "not found or some unhandled error occured.")
