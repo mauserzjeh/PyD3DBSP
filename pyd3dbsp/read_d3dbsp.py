@@ -181,7 +181,6 @@ class D3DBSP:
         surfaces        - list          - list of dictionaries containing surface info
         entities        - list          - list of dictionaries containing entity info
         -----------
-
         """
         self.mapname = ''
         self.surfaces = []
@@ -456,10 +455,10 @@ class D3DBSP:
         --------
         Boolean - True/False wether the file reading was successful or not
         --------
-
         """
         try:
             with open(filepath, 'rb') as file:
+                # get map name
                 self.mapname = HELPER.return_filename_from_filepath(filepath, False)
                 header = self._read_header(file)
                 # validate CoD2 .d3dbsp format
@@ -481,7 +480,7 @@ class D3DBSP:
                     print(self.mapname + " is loaded.")
                     return True
                 else:
-                    print(header.magic + header.version + " file version is not supported!")
+                    print(header.magic + str(header.version) + " file version is not supported! (d3dbsp)")
                     return False
         except:
             HELPER.file_not_found(filepath, "not found or some unhandled error occured.")
