@@ -203,6 +203,7 @@ class XModel:
             # return LODs
             return LODs
         else:
+            print(str(version) + " file version is not supported! (xmodel)")
             return False
 
     def load_xmodel(self, filepath, xmodelsurfpath):
