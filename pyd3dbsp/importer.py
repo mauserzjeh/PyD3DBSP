@@ -8,26 +8,26 @@ from . import material as MATERIAL
 from . import read_xmodel as XMODELREADER
 
 
-def create_mesh(surfaces, surface_name):
+def _create_mesh(surfaces, surface_name):
 
     for i in range(0, len(surfaces)):
-        mesh = bpy.data.meshes.new(surface_name)
-        obj = bpy.data.objects.new(surface_name, mesh)
-
-        bpy.context.scene.objects.link(obj)
-        bpy.context.scene.objects.active = obj
-        obj.select = True
-
-        mesh = bpy.context.object.data
-        bm = bmesh.new()
-
-        uv_surface_list = []
-        vertexcolor_surface_list = []
-
         surface = surfaces[i]
 
         important_keys = set(['vertices', 'triangles'])
         if(important_keys.issubset(surface.keys())):
+            mesh = bpy.data.meshes.new(surface_name)
+            obj = bpy.data.objects.new(surface_name, mesh)
+
+            bpy.context.scene.objects.link(obj)
+            bpy.context.scene.objects.active = obj
+            obj.select = True
+
+            mesh = bpy.context.object.data
+            bm = bmesh.new()
+
+            uv_surface_list = []
+            vertexcolor_surface_list = []
+
             vertices = surface['vertices']
             triangles = surface['triangles']
             
@@ -77,23 +77,16 @@ def create_mesh(surfaces, surface_name):
             bm.free()
         
         else:
-            pass
-            #TODO
-
-        
-
-def import_d3dbsp(self, context):
-    pass
-    
-def import_entities(self, context):
+            print("Surface " + surface_name + " #" + str(i) + " does not contain the necessary data.")
+ 
+def _import_entities(entities, xmodelpath, xmodelsurfpath):
     pass
 
-def import_materials(self, materials, material_fpath, texture_fpath):
+def _import_materials(materials, materialpath, texturepath):
     if(len(materials)):
-        if(len(bpy.data.materials)):
-            for bpy_material in bpy.data.materials:
-                bpy.data.materials.remove(bpy_material)
-        
         for material in materials:
             if(not (bpy.data.materials.get(material.name))):
-                MATERIAL.create_material(material.name, material_fpath, texture_fpath)
+                MATERIAL.create_material(material.name, materialpath, texturepath)
+
+def import_d3dbsp(d3dbsppath):
+    pass

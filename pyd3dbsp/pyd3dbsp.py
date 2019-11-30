@@ -2,7 +2,7 @@ import bpy
 import bpy.ops
 import bpy.props
 
-from . import importer
+from . import importer as IMPORTER
 
 class PyD3DBSP(bpy.types.Operator):
     bl_idname = 'pyd3dbsp.d3dbsp_importer'
@@ -21,10 +21,16 @@ class PyD3DBSP(bpy.types.Operator):
         #subtype = 'DIR_PATH'
     )
 
+    xmodelpath = assetpath + "\\xmodel\\"
+    xmodelsurfpath = assetpath + "\\xmodelsurfs\\"
+    texturepath = assetpath + "\\images\\"
+    materialpath = assetpath + "\\materials\\"
+
+
     def execute(self, context):
-        #todo
-        #result_import_d3dbsp = self.import_d3dbsp(context)
-        #result_import_entities = import_entities()
+        #TODO
+        #IMPORTER.import_d3dbsp(self.filepath)
+        
 
 
         return {'FINISHED'}

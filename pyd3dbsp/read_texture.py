@@ -17,6 +17,10 @@ TEXTHeader = namedtuple('TEXTHeader',
     )
 fmt_TEXTHeader = '<3sBBBHH2xIIII'
 
+class TextureEnums(Enum):
+    MAGIC = 'Iwi'
+    VERSION = 5
+
 class TextureUsage(Enum):
     Color = 0x00
     Default = 0x01
@@ -65,11 +69,10 @@ class Texture():
             self.texture_data = DECODER.decode_dxt5(raw_data, self.width, self.height)
         #TODO rest of the decoding if there is any
 
-    #TODO
     def load_texture(self, filepath):
         with open(filepath, 'rb') as file:
             self._read_header(file)
-            if(self.header.magic == 'IWi' and self.header.version == 5):
+            if(self.header.magic == TextureEnums.MAGIC.value and self.header.version == TextureEnums.VERSION.value):
                 try:
                     self._read_raw_data(file)
                 except:

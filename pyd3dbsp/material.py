@@ -10,7 +10,7 @@ def create_material(name, material_fpath, texture_fpath):
 
     material_file = MATERIALREADER.MTL()
     try:
-        material_file.load_material(material_fpath + '\\' + name)
+        material_file.load_material(material_fpath + name)
     except:
         print("Couldn't load material: " + name)
         material_loading = False
@@ -59,12 +59,12 @@ def create_material(name, material_fpath, texture_fpath):
                 texture_image = bpy.data.images[mapname]
             except:
                 try:
-                    texture_image = bpy.data.images.load(texture_fpath + '\\' + mapname + '.dds', True)
+                    texture_image = bpy.data.images.load(texture_fpath + mapname + '.dds', True)
                 except:
                     print("Couldn't find " + mapname + ".dds. Trying to load from " + mapname + ".iwi")
 
                     texture = TEXTUREREADER.Texture()
-                    if(texture.load_texture(texture_fpath + '\\' + mapname + '.iwi')):
+                    if(texture.load_texture(texture_fpath + mapname + '.iwi')):
                         texture_image = bpy.data.images.new(mapname, texture.width, texture.height)
                         pixels = [x / 255 for x in texture.texture_data]
                         texture_image.pixels = pixels
