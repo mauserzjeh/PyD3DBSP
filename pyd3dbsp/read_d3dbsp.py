@@ -180,6 +180,7 @@ class D3DBSP:
         mapname         - string        - name of the map
         surfaces        - list          - list of dictionaries containing surface info
         entities        - list          - list of dictionaries containing entity info
+        materials       - list          - list of materials names
         -----------
         """
         self.mapname = ''
