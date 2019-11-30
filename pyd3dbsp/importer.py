@@ -88,5 +88,5 @@ def _import_materials(materials, materialpath, texturepath):
             if(not (bpy.data.materials.get(material.name))):
                 MATERIAL.create_material(material.name, materialpath, texturepath)
 
-def import_d3dbsp(d3dbsppath):
+def import_d3dbsp(d3dbsppath, ):
     pass

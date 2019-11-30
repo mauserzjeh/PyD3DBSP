@@ -185,6 +185,7 @@ class D3DBSP:
         self.mapname = ''
         self.surfaces = []
         self.entities = []
+        self.materials = []
 
     def _read_header(self, file):
         """
@@ -465,8 +466,11 @@ class D3DBSP:
                 if(header.magic == D3DBSPENUMS.MAGIC.value and header.version == D3DBSPENUMS.VERSION.value):
                     # read lumps
                     lumps = self._read_lumps(file)
-                    # read materials
+                    # read materials and store the names in a list for a separate import
                     materials = self._read_materials(file, lumps)
+                    for i in range(0, len(materials)):
+                        self.materials.append(materials[i].name)
+
                     # read trianglesoups
                     trianglesoups = self._read_trianglesoups(file, lumps)
                     # read vertices

@@ -55,6 +55,7 @@ class XModel:
         """
         self.modelname = ''
         self.surfaces = []
+        self.materials = []
 
     def _read_surface_data(self, file):
         """
@@ -240,6 +241,7 @@ class XModel:
                     if(len(LOD0['materials']) == len(surfaces)):
                         for i in range(0, len(surfaces)):
                             surfaces[i]['material'] = LOD0['materials'][i]
+                        self.materials = LOD0['materials']
                     else:
                         print("Mismatching number of LOD materials and surfaces. Materials will be omitted.")
 
