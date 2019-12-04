@@ -75,12 +75,25 @@ def _create_mesh(surfaces, surface_name):
 
             bm.to_mesh(mesh)
             bm.free()
-        
+
+            return obj
         else:
             print("Surface " + surface_name + " #" + str(i) + " does not contain the necessary data.")
  
-def _import_entities(entities, xmodelpath, xmodelsurfpath):
-    pass
+def _import_entities(entities, xmodelpath, xmodelsurfpath, materialpath, texturepath):
+    XMODELENUMS = XMODELREADER.XMODELENUMS
+    if(len(entities)):
+        for i in range(0, len(entities)):
+            entity = entities[i]
+            if(XMODELENUMS.KEY_MODEL.value in entity):
+                xmodel = XMODELREADER.XModel()
+                xmodel.load_xmodel((xmodelpath + entity[XMODELENUMS.KEY_MODEL.value]), xmodelsurfpath)
+
+                _import_materials(xmodel.materials, materialpath, texturepath)
+                xmodelobj = _create_mesh(xmodel.surfaces, xmodel.modelname)
+                xmodelobj.location = entity[XMODELENUMS.KEY_ORIGIN.value]
+                xmodelobj.rotation_euler = entity[XMODELENUMS.KEY_ANGLES.value]
+                xmodelobj.scale = (entity[XMODELENUMS.KEY_MODELSCALE], entity[XMODELENUMS.KEY_MODELSCALE], entity[XMODELENUMS.KEY_MODELSCALE])
 
 def _import_materials(materials, materialpath, texturepath):
     if(len(materials)):
@@ -89,4 +102,14 @@ def _import_materials(materials, materialpath, texturepath):
                 MATERIAL.create_material(material.name, materialpath, texturepath)
 
 def import_d3dbsp(d3dbsppath, xmodelpath, xmodelsurfpath, materialpath, texturepath):
-    pass
+    d3dbsp = D3DBSPREADER.D3DBSP()
+    d3dbsp.load_d3dbsp(d3dbsppath)
+    
+    #TODO ERROR HANDLING
+    try:
+        _import_materials(d3dbsp.materials, materialpath, texturepath)
+        d3dbspobj = _create_mesh(d3dbsp.surfaces, d3dbsp.mapname)
+        _import_entities(d3dbsp.entities, xmodelpath, xmodelsurfpath, materialpath, texturepath)
+        return True
+    except:
+        return False

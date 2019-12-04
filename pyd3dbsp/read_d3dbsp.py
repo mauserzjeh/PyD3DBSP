@@ -6,6 +6,7 @@ from collections import namedtuple
 from enum import Enum
 
 from . import helper as HELPER
+#import helper as HELPER
 
 """
 D3DBSPHeader type definition. Used to store file header information.
@@ -370,6 +371,9 @@ class D3DBSP:
                 for k, v in entity.items():
                     if(re.match('([-.0-9]+\s[-.0-9]+\s[-.0-9]+)', v)):
                         entity[k] = v.split(' ')
+                    # remove xmodel/ from the modelname
+                    if(re.match('(xmodel\/)(.*)', v)):
+                        entity[k] = v.lstrip('xmodel/')
                 entities.append(entity)
         return entities
     

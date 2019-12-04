@@ -36,8 +36,12 @@ class XMODELENUMS(Enum):
     """
     XMODELENUMS class for storing some important values.
     """
-    VERSION = 20
-    PHYSIQUED = 65535
+    VERSION = 20 # version of the file
+    PHYSIQUED = 65535 # physiqued value
+    KEY_MODEL = 'model' # model key in entity string
+    KEY_ANGLES = 'angles' # angles key in entity string
+    KEY_ORIGIN = 'origin' # origin key in entity string
+    KEY_MODELSCALE = 'modelscale' # modelscale key in entity string
 
 class XModel:
     """
