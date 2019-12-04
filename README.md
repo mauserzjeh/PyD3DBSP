@@ -5,9 +5,9 @@ Current status:
   - Basic import of map geometry from .d3dbsp files
   - UVs
   - Materials & textures
+  - Entities (xmodels)
   
 TODO:
   - Custom Normals
-  - Entities
   - More error handling
   - Refactoring
