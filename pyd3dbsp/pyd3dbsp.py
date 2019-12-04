@@ -21,15 +21,14 @@ class PyD3DBSP(bpy.types.Operator):
         #subtype = 'DIR_PATH'
     )
 
-    xmodelpath = assetpath + "\\xmodel\\"
-    xmodelsurfpath = assetpath + "\\xmodelsurfs\\"
-    texturepath = assetpath + "\\images\\"
-    materialpath = assetpath + "\\materials\\"
-
-
     def execute(self, context):
         #TODO
-        IMPORTER.import_d3dbsp(self.filepath, self.xmodelpath, self.xmodelsurfpath, self.materialpath, self.texturepath)
+        xmodelpath = self.assetpath + "xmodel\\"
+        xmodelsurfpath = self.assetpath + "xmodelsurfs\\"
+        texturepath = self.assetpath + "images\\"
+        materialpath = self.assetpath + "materials\\"
+
+        IMPORTER.import_d3dbsp(self.filepath, xmodelpath, xmodelsurfpath, materialpath, texturepath)
         
 
 

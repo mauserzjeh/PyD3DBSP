@@ -436,7 +436,7 @@ class D3DBSP:
 
                     # store the vertex data
                     vertex['normal'] = (vert.norm_x, vert.norm_y, vert.norm_z)
-                    vertex['color'] = (vert.clr_r / 255, vert.clr_g / 255, vert.clr_b / 255, vert.clr_a / 255)
+                    vertex['color'] = (vert.clr_r / 255, vert.clr_g / 255, vert.clr_b / 255) #, vert.clr_a / 255)
                     vertex['uv'] = (vert.uv_u, vert.uv_v)
                     vertex['position'] = (vert.pos_x, vert.pos_y, vert.pos_z)
 
@@ -494,3 +494,11 @@ class D3DBSP:
         except:
             HELPER.file_not_found(filepath, "not found or some unhandled error occured.")
             return False
+
+"""
+#testing again lmao
+f = 'F:\\MOVIEMAKING\\3D STUFF\\COD\\COD2ASSETS\\maps\\mp_toujane.d3dbsp'
+t = D3DBSP()
+t.load_d3dbsp(f)
+print(t.surfaces[0])
+"""
