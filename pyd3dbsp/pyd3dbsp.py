@@ -29,7 +29,7 @@ class PyD3DBSP(bpy.types.Operator):
 
     def execute(self, context):
         #TODO
-        #IMPORTER.import_d3dbsp(self.filepath)
+        IMPORTER.import_d3dbsp(self.filepath, self.xmodelpath, self.xmodelsurfpath, self.materialpath, self.texturepath)
         
 
 
