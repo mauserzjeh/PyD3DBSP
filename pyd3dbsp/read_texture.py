@@ -18,7 +18,7 @@ TEXTHeader = namedtuple('TEXTHeader',
 fmt_TEXTHeader = '<3sBBBHH2xIIII'
 
 class TextureEnums(Enum):
-    MAGIC = 'Iwi'
+    MAGIC = 'IWi'
     VERSION = 5
 
 class TextureUsage(Enum):

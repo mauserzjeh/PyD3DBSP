@@ -6,7 +6,6 @@ from collections import namedtuple
 from enum import Enum
 
 from . import helper as HELPER
-#import helper as HELPER
 
 """
 D3DBSPHeader type definition. Used to store file header information.
@@ -369,7 +368,7 @@ class D3DBSP:
                 # if the value of the key contains x, y, z coordinate values
                 # then make a list out of it, so its easier to access those values
                 for k, v in entity.items():
-                    if(re.match('([-.0-9]+\s[-.0-9]+\s[-.0-9]+)', v)):
+                    if(re.match('([-.0-9e]+\s[-.0-9e]+\s[-.0-9e]+)', v)):
                         entity[k] = v.split(' ')
                     # remove xmodel/ from the modelname
                     if(re.match('(xmodel\/)(.*)', v)):
@@ -494,11 +493,3 @@ class D3DBSP:
         except:
             HELPER.file_not_found(filepath, "not found or some unhandled error occured.")
             return False
-
-"""
-#testing again lmao
-f = 'F:\\MOVIEMAKING\\3D STUFF\\COD\\COD2ASSETS\\maps\\mp_toujane.d3dbsp'
-t = D3DBSP()
-t.load_d3dbsp(f)
-print(t.surfaces[0])
-"""

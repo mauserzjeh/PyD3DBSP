@@ -8,7 +8,7 @@ from . import material as MATERIAL
 from . import read_xmodel as XMODELREADER
 
 
-def _create_mesh(surfaces, surface_name):
+def _create_mesh(surfaces, surface_name, prop=None):
 
     for i in range(0, len(surfaces)):
         surface = surfaces[i]
@@ -76,6 +76,17 @@ def _create_mesh(surfaces, surface_name):
             bm.to_mesh(mesh)
             bm.free()
 
+            if(prop):
+                XMODELENUMS = XMODELREADER.XMODELENUMS
+                if(XMODELENUMS.KEY_ORIGIN.value in prop):
+                    obj.location = tuple(map(float, prop[XMODELENUMS.KEY_ORIGIN.value]))
+                if(XMODELENUMS.KEY_ANGLES.value in prop):
+                    rot_x = float(prop[XMODELENUMS.KEY_ANGLES.value][0])
+                    rot_y = float(prop[XMODELENUMS.KEY_ANGLES.value][1])
+                    rot_z = float(prop[XMODELENUMS.KEY_ANGLES.value][2])
+                    obj.rotation_euler = (rot_x, rot_y, rot_z)
+                if(XMODELENUMS.KEY_MODELSCALE in prop):
+                    obj.scale = (float(prop[XMODELENUMS.KEY_MODELSCALE.value]), float(prop[XMODELENUMS.KEY_MODELSCALE.value]), float(prop[XMODELENUMS.KEY_MODELSCALE.value]))
         else:
             print("Surface " + surface_name + " #" + str(i) + " does not contain the necessary data.")
  
@@ -89,12 +100,7 @@ def _import_entities(entities, xmodelpath, xmodelsurfpath, materialpath, texture
                 xmodel.load_xmodel((xmodelpath + entity[XMODELENUMS.KEY_MODEL.value]), xmodelsurfpath)
 
                 _import_materials(xmodel.materials, materialpath, texturepath)
-                """xmodelobj = todo fix this shit as well"""
-                _create_mesh(xmodel.surfaces, xmodel.modelname)
-                #TODO fix this
-                #xmodelobj.location = entity[XMODELENUMS.KEY_ORIGIN.value]
-                #xmodelobj.rotation_euler = entity[XMODELENUMS.KEY_ANGLES.value]
-                #xmodelobj.scale = (entity[XMODELENUMS.KEY_MODELSCALE], entity[XMODELENUMS.KEY_MODELSCALE], entity[XMODELENUMS.KEY_MODELSCALE])
+                _create_mesh(xmodel.surfaces, xmodel.modelname, entity)
 
 def _import_materials(materials, materialpath, texturepath):
     if(len(materials)):
@@ -105,14 +111,11 @@ def _import_materials(materials, materialpath, texturepath):
 def import_d3dbsp(d3dbsppath, xmodelpath, xmodelsurfpath, materialpath, texturepath):
     d3dbsp = D3DBSPREADER.D3DBSP()
     d3dbsp.load_d3dbsp(d3dbsppath)
-    
-    #TODO ERROR HANDLING
-#    try:
-    _import_materials(d3dbsp.materials, materialpath, texturepath)
-    d3dbspobj = _create_mesh(d3dbsp.surfaces, d3dbsp.mapname)
-    _import_entities(d3dbsp.entities, xmodelpath, xmodelsurfpath, materialpath, texturepath)
-"""
+
+    try:
+        _import_materials(d3dbsp.materials, materialpath, texturepath)
+        _create_mesh(d3dbsp.surfaces, d3dbsp.mapname)
+        _import_entities(d3dbsp.entities, xmodelpath, xmodelsurfpath, materialpath, texturepath)
         return True
     except:
         return False
-"""

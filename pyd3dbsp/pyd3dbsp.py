@@ -22,13 +22,14 @@ class PyD3DBSP(bpy.types.Operator):
     )
 
     def execute(self, context):
-        #TODO
+
         xmodelpath = self.assetpath + "xmodel\\"
         xmodelsurfpath = self.assetpath + "xmodelsurfs\\"
         texturepath = self.assetpath + "images\\"
         materialpath = self.assetpath + "materials\\"
 
-        IMPORTER.import_d3dbsp(self.filepath, xmodelpath, xmodelsurfpath, materialpath, texturepath)
+        if(IMPORTER.import_d3dbsp(self.filepath, xmodelpath, xmodelsurfpath, materialpath, texturepath)):
+            print("Finished loading...")
         
 
 
