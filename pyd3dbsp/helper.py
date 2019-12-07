@@ -1,5 +1,6 @@
 import struct
 import os
+import math
 
 import bpy
 

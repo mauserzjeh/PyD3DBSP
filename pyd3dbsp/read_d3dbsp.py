@@ -371,8 +371,9 @@ class D3DBSP:
                     if(re.match('([-.0-9e]+\s[-.0-9e]+\s[-.0-9e]+)', v)):
                         entity[k] = v.split(' ')
                     # remove xmodel/ from the modelname
-                    if(re.match('(xmodel\/)(.*)', v)):
-                        entity[k] = v.lstrip('xmodel/')
+                    modelname = re.match('^xmodel\/(.*)', v)
+                    if(modelname):
+                        entity[k] = modelname.group(1)
                 entities.append(entity)
         return entities
     

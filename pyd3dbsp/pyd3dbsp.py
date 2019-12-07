@@ -21,14 +21,15 @@ class PyD3DBSP(bpy.types.Operator):
         #subtype = 'DIR_PATH'
     )
 
+    import_materials = bpy.props.BoolProperty(
+        name = 'Import Materials',
+        description = 'Whether to import materials and textures or not.',
+        default = True
+    )
+
     def execute(self, context):
 
-        xmodelpath = self.assetpath + "xmodel\\"
-        xmodelsurfpath = self.assetpath + "xmodelsurfs\\"
-        texturepath = self.assetpath + "images\\"
-        materialpath = self.assetpath + "materials\\"
-
-        if(IMPORTER.import_d3dbsp(self.filepath, xmodelpath, xmodelsurfpath, materialpath, texturepath)):
+        if(IMPORTER.import_d3dbsp(self.filepath, self.assetpath, self.import_materials)):
             print("Finished loading...")
         
 

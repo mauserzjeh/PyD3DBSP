@@ -1,3 +1,5 @@
+import math
+
 import bpy
 import bpy.ops
 import bpy.props
@@ -89,10 +91,10 @@ def _create_mesh(surfaces, surface_name, prop=None, parent=None):
                 if(XMODELENUMS.KEY_ORIGIN.value in prop):
                     obj.location = tuple(map(float, prop[XMODELENUMS.KEY_ORIGIN.value]))
                 if(XMODELENUMS.KEY_ANGLES.value in prop):
-                    rot_x = float(prop[XMODELENUMS.KEY_ANGLES.value][0])
-                    rot_y = float(prop[XMODELENUMS.KEY_ANGLES.value][1])
-                    rot_z = float(prop[XMODELENUMS.KEY_ANGLES.value][2])
-                    obj.rotation_euler = (rot_x, rot_y, rot_z)
+                    rot_x = math.radians(float(prop[XMODELENUMS.KEY_ANGLES.value][0]))
+                    rot_y = math.radians(float(prop[XMODELENUMS.KEY_ANGLES.value][1]))
+                    rot_z = math.radians(float(prop[XMODELENUMS.KEY_ANGLES.value][2]))
+                    obj.rotation_euler = (rot_x, rot_z, rot_y)
                 if(XMODELENUMS.KEY_MODELSCALE.value in prop):
                     obj.scale = (float(prop[XMODELENUMS.KEY_MODELSCALE.value]), float(prop[XMODELENUMS.KEY_MODELSCALE.value]), float(prop[XMODELENUMS.KEY_MODELSCALE.value]))
 
@@ -105,10 +107,10 @@ def _create_mesh(surfaces, surface_name, prop=None, parent=None):
                 objects.remove(meshnull, True)
             print("Surface " + surface_name + " #" + str(i) + " does not contain the necessary data.")
 
-def _import_entities(entities, xmodelpath, xmodelsurfpath, materialpath, texturepath, parent=None):
+def _import_entities(entities, xmodelpath, xmodelsurfpath, materialpath, texturepath, parent=None, import_materials=True):
     XMODELENUMS = XMODELREADER.XMODELENUMS
     if(len(entities)):
-        print('Importing entities and materials...')
+        print('Importing entities...')
         nullname = parent.name + "_xmodels" if parent else "xmodels"
         entitiesnull = bpy.data.objects.new(nullname, None)
         bpy.context.scene.objects.link(entitiesnull)
@@ -121,8 +123,8 @@ def _import_entities(entities, xmodelpath, xmodelsurfpath, materialpath, texture
             if(XMODELENUMS.KEY_MODEL.value in entity):
                 xmodel = XMODELREADER.XModel()
                 if(xmodel.load_xmodel((xmodelpath + entity[XMODELENUMS.KEY_MODEL.value]), xmodelsurfpath)):
-
-                    _import_materials(xmodel.materials, materialpath, texturepath)
+                    if(import_materials):
+                        _import_materials(xmodel.materials, materialpath, texturepath)
                     _create_mesh(xmodel.surfaces, xmodel.modelname, prop=entity, parent=entitiesnull)
 
 def _import_materials(materials, materialpath, texturepath):
@@ -131,7 +133,12 @@ def _import_materials(materials, materialpath, texturepath):
             if(not (bpy.data.materials.get(material))):
                 MATERIAL.create_material(material, materialpath, texturepath)
 
-def import_d3dbsp(d3dbsppath, xmodelpath, xmodelsurfpath, materialpath, texturepath):
+def import_d3dbsp(d3dbsppath, assetpath, import_materials=True):
+    xmodelpath = assetpath + "xmodel\\"
+    xmodelsurfpath = assetpath + "xmodelsurfs\\"
+    texturepath = assetpath + "images\\"
+    materialpath = assetpath + "materials\\"
+    
     d3dbsp = D3DBSPREADER.D3DBSP()
     if(d3dbsp.load_d3dbsp(d3dbsppath)):
 
@@ -144,11 +151,12 @@ def import_d3dbsp(d3dbsppath, xmodelpath, xmodelsurfpath, materialpath, texturep
         mapgeometrynull.parent = d3dbspnull
 
         try:
-            print('Importing materials...')
-            _import_materials(d3dbsp.materials, materialpath, texturepath)
+            if(import_materials):
+                print('Importing materials...')
+                _import_materials(d3dbsp.materials, materialpath, texturepath)
             print('Creating map geometry...')
             _create_mesh(d3dbsp.surfaces, d3dbsp.mapname, parent=mapgeometrynull)
-            _import_entities(d3dbsp.entities, xmodelpath, xmodelsurfpath, materialpath, texturepath, d3dbspnull)
+            _import_entities(d3dbsp.entities, xmodelpath, xmodelsurfpath, materialpath, texturepath, d3dbspnull, import_materials)
             return True
         except:
             return False
