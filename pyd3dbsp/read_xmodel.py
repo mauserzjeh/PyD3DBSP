@@ -154,7 +154,7 @@ class XModel:
                 # return the surface data
                 return surfaces
         except:
-            HELPER.file_not_found(filepath, "not found or some unhandled error occured.")
+            HELPER.file_not_found(filepath, " (xmodelsurf) not found or some unhandled error occured.")
 
     def _read_data(self, file):
         """
@@ -258,5 +258,6 @@ class XModel:
                 else:
                     return False
         except:
-            HELPER.file_not_found(filepath, "not found or some unhandled error occured.")
+            HELPER.file_not_found(filepath, " (xmodel) not found or some unhandled error occured.")
+            return False
 

@@ -61,15 +61,13 @@ def create_material(name, material_fpath, texture_fpath):
                 try:
                     texture_image = bpy.data.images.load(texture_fpath + mapname + '.dds', True)
                 except:
-                    print("Couldn't find " + mapname + ".dds. Trying to load from " + mapname + ".iwi")
-
                     texture = TEXTUREREADER.Texture()
                     if(texture.load_texture(texture_fpath + mapname + '.iwi')):
                         texture_image = bpy.data.images.new(mapname, texture.width, texture.height)
                         pixels = [x / 255 for x in texture.texture_data]
                         texture_image.pixels = pixels
                     else:
-                        print("Couldn't load " + mapname + ".iwi. Image texture will not be created.")
+                        print("Couldn't find/load " + mapname + " (dds/iwi). Image texture will not be created.")
 
             if(texture_image != None):
                 # creating texture input node

@@ -8,7 +8,12 @@ from . import material as MATERIAL
 from . import read_xmodel as XMODELREADER
 
 
-def _create_mesh(surfaces, surface_name, prop=None):
+def _create_mesh(surfaces, surface_name, prop=None, parent=None):
+    objects = bpy.data.objects
+    
+    if(prop):
+        meshnull = bpy.data.objects.new(surface_name, None)
+        bpy.context.scene.objects.link(meshnull)
 
     for i in range(0, len(surfaces)):
         surface = surfaces[i]
@@ -77,7 +82,10 @@ def _create_mesh(surfaces, surface_name, prop=None):
             bm.free()
 
             if(prop):
+                obj.parent = meshnull
+                
                 XMODELENUMS = XMODELREADER.XMODELENUMS
+                
                 if(XMODELENUMS.KEY_ORIGIN.value in prop):
                     obj.location = tuple(map(float, prop[XMODELENUMS.KEY_ORIGIN.value]))
                 if(XMODELENUMS.KEY_ANGLES.value in prop):
@@ -85,22 +93,37 @@ def _create_mesh(surfaces, surface_name, prop=None):
                     rot_y = float(prop[XMODELENUMS.KEY_ANGLES.value][1])
                     rot_z = float(prop[XMODELENUMS.KEY_ANGLES.value][2])
                     obj.rotation_euler = (rot_x, rot_y, rot_z)
-                if(XMODELENUMS.KEY_MODELSCALE in prop):
+                if(XMODELENUMS.KEY_MODELSCALE.value in prop):
                     obj.scale = (float(prop[XMODELENUMS.KEY_MODELSCALE.value]), float(prop[XMODELENUMS.KEY_MODELSCALE.value]), float(prop[XMODELENUMS.KEY_MODELSCALE.value]))
+
+            if(parent and prop):
+                meshnull.parent = parent
+            elif(parent and not prop):
+                obj.parent = parent
         else:
+            if(prop):
+                objects.remove(meshnull, True)
             print("Surface " + surface_name + " #" + str(i) + " does not contain the necessary data.")
- 
-def _import_entities(entities, xmodelpath, xmodelsurfpath, materialpath, texturepath):
+
+def _import_entities(entities, xmodelpath, xmodelsurfpath, materialpath, texturepath, parent=None):
     XMODELENUMS = XMODELREADER.XMODELENUMS
     if(len(entities)):
+        print('Importing entities and materials...')
+        nullname = parent.name + "_xmodels" if parent else "xmodels"
+        entitiesnull = bpy.data.objects.new(nullname, None)
+        bpy.context.scene.objects.link(entitiesnull)
+
+        if(parent):
+            entitiesnull.parent = parent
+
         for i in range(0, len(entities)):
             entity = entities[i]
             if(XMODELENUMS.KEY_MODEL.value in entity):
                 xmodel = XMODELREADER.XModel()
-                xmodel.load_xmodel((xmodelpath + entity[XMODELENUMS.KEY_MODEL.value]), xmodelsurfpath)
+                if(xmodel.load_xmodel((xmodelpath + entity[XMODELENUMS.KEY_MODEL.value]), xmodelsurfpath)):
 
-                _import_materials(xmodel.materials, materialpath, texturepath)
-                _create_mesh(xmodel.surfaces, xmodel.modelname, entity)
+                    _import_materials(xmodel.materials, materialpath, texturepath)
+                    _create_mesh(xmodel.surfaces, xmodel.modelname, prop=entity, parent=entitiesnull)
 
 def _import_materials(materials, materialpath, texturepath):
     if(len(materials)):
@@ -110,12 +133,22 @@ def _import_materials(materials, materialpath, texturepath):
 
 def import_d3dbsp(d3dbsppath, xmodelpath, xmodelsurfpath, materialpath, texturepath):
     d3dbsp = D3DBSPREADER.D3DBSP()
-    d3dbsp.load_d3dbsp(d3dbsppath)
+    if(d3dbsp.load_d3dbsp(d3dbsppath)):
 
-    try:
-        _import_materials(d3dbsp.materials, materialpath, texturepath)
-        _create_mesh(d3dbsp.surfaces, d3dbsp.mapname)
-        _import_entities(d3dbsp.entities, xmodelpath, xmodelsurfpath, materialpath, texturepath)
-        return True
-    except:
-        return False
+        d3dbspnull = bpy.data.objects.new(d3dbsp.mapname, None)
+        bpy.context.scene.objects.link(d3dbspnull)
+
+        mapgeometrynull = bpy.data.objects.new(d3dbsp.mapname + "_geometry", None)
+        bpy.context.scene.objects.link(mapgeometrynull)
+
+        mapgeometrynull.parent = d3dbspnull
+
+        try:
+            print('Importing materials...')
+            _import_materials(d3dbsp.materials, materialpath, texturepath)
+            print('Creating map geometry...')
+            _create_mesh(d3dbsp.surfaces, d3dbsp.mapname, parent=mapgeometrynull)
+            _import_entities(d3dbsp.entities, xmodelpath, xmodelsurfpath, materialpath, texturepath, d3dbspnull)
+            return True
+        except:
+            return False
