@@ -9,9 +9,8 @@ Current status:
   - Entities (xmodels)
   
 TODO:
-  - Fix entity rotations
-  - Fix overlapping faces (need a solution for decals)
-  - Debug some import/loading errors
+  - Fix overlapping faces
+      - Need to remove duplicate faces and create blended materials based on vertex color, so decals will display correctly
   - Custom Normals
   - Optimalization for better speed
   - Additional error handling and refactoring
