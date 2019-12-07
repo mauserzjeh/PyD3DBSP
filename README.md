@@ -2,6 +2,7 @@
 Blender add-on for importing Call of Duty 2 map files
 
 Current status:
+  - Tested with Blender 2.79b
   - Basic import of map geometry from .d3dbsp files
   - UVs
   - Materials & textures
@@ -9,7 +10,8 @@ Current status:
   
 TODO:
   - Fix entity rotations
-  - Texture import is broken at the moment (some textures import as a black image)
+  - Fix overlapping faces (need a solution for decals)
+  - Debug some import/loading errors
   - Custom Normals
-  - More error handling
-  - Refactoring
+  - Optimalization for better speed
+  - Additional error handling and refactoring
