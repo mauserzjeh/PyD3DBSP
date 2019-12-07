@@ -9,7 +9,9 @@ Current status:
   
 TODO:
   - Fix entity rotations
-  - Texture import is broken at the moment (some textures import as a black image)
+  - Fix overlapping faces (need a solution for decals)
+  - Optimalization
   - Custom Normals
   - More error handling
   - Refactoring
+  - Debug some import/loading errors
