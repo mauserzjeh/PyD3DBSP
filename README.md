@@ -1,6 +1,8 @@
 # PyD3DBSP
 Blender add-on for importing Call of Duty 2 map files
 
+[Check out how the tool works (alpha state)](https://www.youtube.com/watch?v=TIuK9BN_9kY)
+
 Current status:
   - Tested with Blender 2.79b
   - Basic import of map geometry from .d3dbsp files
@@ -9,9 +11,8 @@ Current status:
   - Entities (xmodels)
   
 TODO:
-  - Fix entity rotations
-  - Fix overlapping faces (need a solution for decals)
-  - Debug some import/loading errors
+  - Fix overlapping faces
+      - Need to remove duplicate faces and create blended materials based on vertex color, so decals will display correctly
   - Custom Normals
   - Optimalization for better speed
   - Additional error handling and refactoring
