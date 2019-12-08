@@ -26,10 +26,15 @@ class PyD3DBSP(bpy.types.Operator):
         description = 'Whether to import materials and textures or not.',
         default = True
     )
+    import_props = bpy.props.BoolProperty(
+        name = 'Import Props',
+        description = 'Whether to import props or not.',
+        default = True
+    )
 
     def execute(self, context):
 
-        if(IMPORTER.import_d3dbsp(self.filepath, self.assetpath, self.import_materials)):
+        if(IMPORTER.import_d3dbsp(self.filepath, self.assetpath, self.import_materials, self.import_props)):
             print("Finished loading...")
         
 

@@ -133,7 +133,7 @@ def _import_materials(materials, materialpath, texturepath):
             if(not (bpy.data.materials.get(material))):
                 MATERIAL.create_material(material, materialpath, texturepath)
 
-def import_d3dbsp(d3dbsppath, assetpath, import_materials=True):
+def import_d3dbsp(d3dbsppath, assetpath, import_materials=True, import_props=True):
     xmodelpath = assetpath + "xmodel\\"
     xmodelsurfpath = assetpath + "xmodelsurfs\\"
     texturepath = assetpath + "images\\"
@@ -156,7 +156,8 @@ def import_d3dbsp(d3dbsppath, assetpath, import_materials=True):
                 _import_materials(d3dbsp.materials, materialpath, texturepath)
             print('Creating map geometry...')
             _create_mesh(d3dbsp.surfaces, d3dbsp.mapname, parent=mapgeometrynull)
-            _import_entities(d3dbsp.entities, xmodelpath, xmodelsurfpath, materialpath, texturepath, d3dbspnull, import_materials)
+            if(import_props):
+                _import_entities(d3dbsp.entities, xmodelpath, xmodelsurfpath, materialpath, texturepath, d3dbspnull, import_materials)
             return True
         except:
             return False
