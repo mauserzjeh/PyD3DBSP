@@ -1,6 +1,8 @@
 # PyD3DBSP
 Blender add-on for importing Call of Duty 2 map files
 
+[Check out how the tool works (alpha state)](https://www.youtube.com/watch?v=TIuK9BN_9kY)
+
 Current status:
   - Tested with Blender 2.79b
   - Basic import of map geometry from .d3dbsp files
