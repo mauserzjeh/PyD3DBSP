@@ -11,11 +11,9 @@ from . import read_xmodel as XMODELREADER
 
 
 def _create_mesh(surfaces, surface_name, prop=None, parent=None):
-    objects = bpy.data.objects
-    
     if(prop):
         meshnull = bpy.data.objects.new(surface_name, None)
-        bpy.context.scene.objects.link(meshnull)
+        bpy.context.scene.collection.objects.link(meshnull)
 
     for i in range(0, len(surfaces)):
         surface = surfaces[i]
@@ -24,10 +22,10 @@ def _create_mesh(surfaces, surface_name, prop=None, parent=None):
         if(important_keys.issubset(surface.keys())):
             mesh = bpy.data.meshes.new(surface_name)
             obj = bpy.data.objects.new(surface_name, mesh)
-
-            bpy.context.scene.objects.link(obj)
-            bpy.context.scene.objects.active = obj
-            obj.select = True
+            
+            bpy.context.scene.collection.objects.link(obj)
+            bpy.context.view_layer.objects.active = obj
+            obj.select_set(True)
 
             mesh = bpy.context.object.data
             bm = bmesh.new()
@@ -104,7 +102,7 @@ def _create_mesh(surfaces, surface_name, prop=None, parent=None):
                 obj.parent = parent
         else:
             if(prop):
-                objects.remove(meshnull, True)
+                bpy.data.objects.remove(meshnull, True)
             print("Surface " + surface_name + " #" + str(i) + " does not contain the necessary data.")
 
 def _import_entities(entities, xmodelpath, xmodelsurfpath, materialpath, texturepath, parent=None, import_materials=True):
@@ -113,7 +111,7 @@ def _import_entities(entities, xmodelpath, xmodelsurfpath, materialpath, texture
         print('Importing entities...')
         nullname = parent.name + "_xmodels" if parent else "xmodels"
         entitiesnull = bpy.data.objects.new(nullname, None)
-        bpy.context.scene.objects.link(entitiesnull)
+        bpy.context.scene.collection.objects.link(entitiesnull)
 
         if(parent):
             entitiesnull.parent = parent
@@ -143,10 +141,10 @@ def import_d3dbsp(d3dbsppath, assetpath, import_materials=True, import_props=Tru
     if(d3dbsp.load_d3dbsp(d3dbsppath)):
 
         d3dbspnull = bpy.data.objects.new(d3dbsp.mapname, None)
-        bpy.context.scene.objects.link(d3dbspnull)
+        bpy.context.scene.collection.objects.link(d3dbspnull)
 
         mapgeometrynull = bpy.data.objects.new(d3dbsp.mapname + "_geometry", None)
-        bpy.context.scene.objects.link(mapgeometrynull)
+        bpy.context.scene.collection.objects.link(mapgeometrynull)
 
         mapgeometrynull.parent = d3dbspnull
 

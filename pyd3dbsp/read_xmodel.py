@@ -105,7 +105,7 @@ class XModel:
                 for j in range(mesh_header.vertex_number):
                     vertex = {}
                     vertex['normal'] = struct.unpack('<fff', file.read(12))
-                    vertex['color'] = struct.unpack('<BBBx', file.read(4))
+                    vertex['color'] = struct.unpack('<BBBB', file.read(4))
                     vertex['uv'] = struct.unpack('<ff', file.read(8))
                     file.read(24) # padding
 
