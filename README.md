@@ -11,6 +11,7 @@ Current status:
   - Entities (xmodels)
   
 TODO:
+  - Move to Blender 2.8+
   - Fix overlapping faces
       - Need to remove duplicate faces and create blended materials based on vertex color, so decals will display correctly
   - Custom Normals
