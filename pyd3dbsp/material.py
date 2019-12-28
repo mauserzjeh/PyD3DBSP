@@ -6,15 +6,32 @@ from . import read_material as MATERIALREADER
 from . import read_texture as TEXTUREREADER
 
 def create_material(name, material_fpath, texture_fpath):
+    """
+    All purpose material creation function. Reads in the necessary textures and creates a suitable shadernode setup.
+
+
+    Parameters:
+    -----------
+    name            - string - Name of the material
+    material_fpath  - string - Path to the material file to read from
+    texture_fpath   - string - Path to the the textures to read
+    -----------
+    """
+
+    # variable for error handling
     material_loading = True
 
+    # create material object
     material_file = MATERIALREADER.MTL()
+
+    # try to load the material
     try:
         material_file.load_material(material_fpath + name)
     except:
         print("Couldn't load material: " + name)
         material_loading = False
 
+    # only continue if loading was successful
     if(material_loading):
         material = bpy.data.materials.new(material_file.materialname)
         material.use_nodes = True

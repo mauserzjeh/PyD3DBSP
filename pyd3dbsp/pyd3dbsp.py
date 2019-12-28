@@ -33,12 +33,8 @@ class PyD3DBSP(bpy.types.Operator):
     )
 
     def execute(self, context):
-
         if(IMPORTER.import_d3dbsp(self.filepath, self.assetpath, self.import_materials, self.import_props)):
             print("Finished loading...")
-        
-
-
         return {'FINISHED'}
 
     def invoke(self, context, event):

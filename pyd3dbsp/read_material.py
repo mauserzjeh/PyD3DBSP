@@ -114,16 +114,11 @@ class MTL:
                 mapinfoblock = mapinfoblock._replace(first_ofs = mapinfoblock.second_ofs)
                 mapinfoblock = mapinfoblock._replace(second_ofs = tmp_ofs)
             
-            # read the first string of the mapinfoblock (from first offset to second offset)
+            # read the first string of the mapinfoblock
             file.seek(mapinfoblock.first_ofs)
             str_first = HELPER.read_nullstr(file)
-
-            # since we don't know where the second string ends 
-            # we read until we have completely read in a NULL terminated string
             
-            # (well technically we could read until the next mapinfoblock's first offset, but then
-            # we would have to do a special case for the last mapinfoblock, where we cant measure
-            # the length until the next mapinfoblock, since there are no more mapinfoblocks)
+            # read the second string of the mapinfoblock
             file.seek(mapinfoblock.second_ofs)
             str_second = HELPER.read_nullstr(file)
 
