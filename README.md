@@ -1,3 +1,5 @@
+### This tool is not supported anymore. A new version can be found here: https://github.com/mauserzjeh/cod-asset-importer
+
 # PyD3DBSP
 Blender add-on for importing Call of Duty 2 map files
 
